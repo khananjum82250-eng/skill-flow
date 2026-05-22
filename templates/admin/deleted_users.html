@@ -1,0 +1,81 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Deleted Users{% endblock %}
+{% block content %}
+<div class="deleted-users-admin-page">
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">Admin Panel</span>
+    <h1>Deleted Users</h1>
+    <p class="admin-muted">Soft-deleted accounts are hidden from SkillFlow users but retained here for admin review.</p>
+  </div>
+  <div class="admin-page-count">
+    <i class="fa-solid fa-user-slash"></i>
+    <span>{{ deleted_users|length }} deleted</span>
+  </div>
+</section>
+
+<section class="admin-toolbar admin-section deleted-users-toolbar">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search deleted users by name, username, email, skills, deleted date, or source.</span>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section admin-data-panel deleted-users-panel">
+  <table class="admin-table deleted-users-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Email</th>
+        <th>Skills</th>
+        <th>Deleted</th>
+        <th>Source</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in deleted_users %}
+      <tr data-search-row>
+        <td>
+          <div class="admin-user-cell admin-user-cell-strong">
+            <img class="admin-user-avatar" src="{{ user.avatar_url }}" alt="{{ user.username }} avatar">
+            <span>
+              <strong>{{ user.full_name or user.username }}</strong>
+              <small>#{{ user.id }} @{{ user.username }}</small>
+            </span>
+          </div>
+        </td>
+        <td>{{ user.email }}</td>
+        <td>
+          <div class="admin-skill-stack deleted-user-skills">
+            <span><i class="fa-solid fa-chalkboard-user"></i> {{ user.skills_offered or 'No offered skills' }}</span>
+            <span><i class="fa-solid fa-book-open-reader"></i> {{ user.skills_wanted or 'No wanted skills' }}</span>
+          </div>
+        </td>
+        <td><span class="admin-muted"><i class="fa-regular fa-calendar"></i> {{ user.deleted_at or user.action_at or '-' }}</span></td>
+        <td>
+          {% if user.deleted_by_user %}
+          <span class="status-pill status-deleted"><i class="fa-solid fa-user"></i> User deleted</span>
+          {% else %}
+          <span class="status-pill status-blocked"><i class="fa-solid fa-shield-halved"></i> Admin deleted</span>
+          {% endif %}
+          {% if user.delete_reason or user.action_reason %}
+          <small class="admin-muted">Reason: {{ user.delete_reason or user.action_reason }}</small>
+          {% endif %}
+        </td>
+        <td>
+          <div class="admin-actions">
+          <form method="post" action="{{ url_for('admin_restore_deleted_user', user_id=user.id) }}">
+            <button class="admin-action-btn" type="submit"><i class="fa-solid fa-rotate-left"></i> Restore</button>
+          </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No deleted users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

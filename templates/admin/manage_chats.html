@@ -1,0 +1,122 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Chats{% endblock %}
+{% block content %}
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">Conversation Center</span>
+    <h1>Chats</h1>
+    <p class="admin-muted">Review grouped SkillFlow conversations without repeated message clutter.</p>
+  </div>
+  <div class="admin-page-count">
+    <i class="fa-regular fa-message"></i>
+    <span>{{ chats|length }} conversations</span>
+  </div>
+</section>
+
+<section class="admin-chat-filters admin-section">
+  <a class="{{ 'active' if active_filter == 'all' }}" href="{{ url_for('admin_chats_page') }}"><i class="fa-solid fa-layer-group"></i> All</a>
+  <a class="{{ 'active' if active_filter == 'active' }}" href="{{ url_for('admin_chats_page', filter='active') }}"><i class="fa-solid fa-unlock"></i> Active</a>
+  <a class="{{ 'active' if active_filter == 'locked' }}" href="{{ url_for('admin_chats_page', filter='locked') }}"><i class="fa-solid fa-lock"></i> Locked</a>
+  <a class="{{ 'active' if active_filter == 'recent' }}" href="{{ url_for('admin_chats_page', filter='recent') }}"><i class="fa-solid fa-clock"></i> Recent</a>
+</section>
+
+<section class="admin-toolbar admin-section">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Use the top search to find conversations by username, name, status, or message text.</span>
+  </div>
+</section>
+
+<div class="chat-admin-list admin-section">
+  {% for chat in chats %}
+  <article class="chat-admin-card chat-conversation-card" data-search-row>
+    <div class="chat-conversation-people">
+      <div class="chat-admin-person">
+        <img src="{{ chat.user_a_avatar }}" alt="{{ chat.user_a }} avatar">
+        <div>
+          <strong>{{ chat.user_a_name }}</strong>
+          <span>@{{ chat.user_a }}</span>
+        </div>
+      </div>
+      <span class="chat-pair-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></span>
+      <div class="chat-admin-person">
+        <img src="{{ chat.user_b_avatar }}" alt="{{ chat.user_b }} avatar">
+        <div>
+          <strong>{{ chat.user_b_name }}</strong>
+          <span>@{{ chat.user_b }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-conversation-summary">
+      <p>{{ chat.last_message or 'No message content' }}</p>
+      <div class="chat-admin-meta">
+        <span><i class="fa-regular fa-clock"></i> {{ chat.last_message_at or '-' }}</span>
+        <span><i class="fa-regular fa-message"></i> {{ chat.message_count }} messages</span>
+        <span class="status-pill status-{{ chat.chat_status }}">{{ chat.chat_status }}</span>
+      </div>
+    </div>
+
+    <div class="chat-conversation-action">
+      <a class="chat-open-btn" href="{{ url_for('admin_chats_page', filter=active_filter, conversation=chat.conversation_key) }}">
+        <i class="fa-solid fa-up-right-from-square"></i>
+        Open Chat
+      </a>
+    </div>
+  </article>
+  {% else %}
+  <div class="admin-empty-state">
+    <i class="fa-regular fa-message"></i>
+    <strong>No chats available.</strong>
+    <span>Conversations will appear here after users start messaging.</span>
+  </div>
+  {% endfor %}
+</div>
+
+{% if selected_chat %}
+<section class="admin-chat-modal" aria-label="Conversation history">
+  <div class="admin-chat-panel">
+    <div class="admin-chat-panel-head">
+      <div class="chat-conversation-people">
+        <div class="chat-admin-person">
+          <img src="{{ selected_chat.user_a_avatar }}" alt="{{ selected_chat.user_a }} avatar">
+          <div>
+            <strong>{{ selected_chat.user_a_name }}</strong>
+            <span>@{{ selected_chat.user_a }}</span>
+          </div>
+        </div>
+        <span class="chat-pair-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></span>
+        <div class="chat-admin-person">
+          <img src="{{ selected_chat.user_b_avatar }}" alt="{{ selected_chat.user_b }} avatar">
+          <div>
+            <strong>{{ selected_chat.user_b_name }}</strong>
+            <span>@{{ selected_chat.user_b }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="admin-chat-panel-actions">
+        <span class="status-pill status-{{ selected_chat.chat_status }}">{{ selected_chat.chat_status }}</span>
+        <a class="admin-chat-close" href="{{ url_for('admin_chats_page', filter=active_filter) }}" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></a>
+      </div>
+    </div>
+
+    <div class="admin-chat-history">
+      {% for message in selected_chat.messages %}
+      <div class="admin-chat-bubble-row {{ 'from-a' if message.is_user_a else 'from-b' }}">
+        <div class="admin-chat-bubble">
+          <strong>{{ message.sender_name }}</strong>
+          <p>{{ message.message_text }}</p>
+          <span>{{ message.created_at or '-' }}</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="admin-empty-state">
+        <i class="fa-regular fa-message"></i>
+        <strong>No messages in this conversation.</strong>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

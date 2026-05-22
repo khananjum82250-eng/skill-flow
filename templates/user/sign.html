@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillFlow-Sign in/Sign up</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=user-scrollbar-theme-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skillflow_ui.css') }}?v=safe-dropdown-theme-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/sign_style.css') }}?v=session-persistence-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user_scrollbar.css') }}?v=user-scrollbar-theme-1">
+</head>
+
+<body>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="container {% if auth_mode == 'signup' %}active{% endif %}" id="container">
+        <div class="form-container sign-up">
+            <form method="POST" action="{{ url_for('register') }}">
+                <h1>Create Account</h1>
+                <span class="mb-15px">Register with your email</span>
+                <input type="text" name="full_name" placeholder="Full Name" required autocomplete="name">
+                <input type="text" name="username" placeholder="Username" autocomplete="username" minlength="3" maxlength="25" pattern="[A-Za-z0-9_.]+">
+                <input type="email" name="email" placeholder="Email" required autocomplete="email">
+                <input type="text" name="location" placeholder="Location" required autocomplete="address-level2">
+                <div class="password-field">
+                    <input type="password" name="password" placeholder="Password" required autocomplete="new-password" minlength="8">
+                    <button type="button" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <div class="password-field">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" required autocomplete="new-password" minlength="8">
+                    <button type="button" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <button type="submit" class="mt-15px">Sign Up</button>
+            </form>
+        </div>
+        <div class="form-container sign-in">
+            <form method="POST" action="{{ url_for('login') }}">
+                <h2>Sign In</h2>
+                <span>use your email password</span>
+                <input type="email" name="email" placeholder="Email" required autocomplete="email">
+                <div class="password-field">
+                    <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                </div>
+                <label class="remember-login">
+                    <input type="checkbox" name="remember_me">
+                    <span>Remember me on this device</span>
+                </label>
+                <a href="{{ url_for('forgot_password_page') }}">Forget Your Password?</a>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <div class="toggle-logo">
+                        <div class="toggle-logo-icon">
+                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                                <circle cx="16" cy="16" r="15" fill="url(#toggleLogoGradLeft)" />
+                                <path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                                <path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7" />
+                                <defs>
+                                    <linearGradient id="toggleLogoGradLeft" x1="0" y1="0" x2="32" y2="32">
+                                        <stop offset="0%" stop-color="#9b85ff" />
+                                        <stop offset="100%" stop-color="#7C3AED" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span>SkillFlow</span>
+                    </div>
+                    <h1>Welcome Back!</h1>
+                    <p>Enter your personal details to use all of site features</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <div class="toggle-logo">
+                        <div class="toggle-logo-icon">
+                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                                <circle cx="16" cy="16" r="15" fill="url(#toggleLogoGradRight)" />
+                                <path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                                <path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7" />
+                                <defs>
+                                    <linearGradient id="toggleLogoGradRight" x1="0" y1="0" x2="32" y2="32">
+                                        <stop offset="0%" stop-color="#9b85ff" />
+                                        <stop offset="100%" stop-color="#7C3AED" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span>SkillFlow</span>
+                    </div>
+                    <h1>Hello, Friend!</h1>
+                    <p>Register with your personal details to use all of site features</p>
+                    <button class="hidden" id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/skillflow_ui.js') }}?v=csrf-1"></script>
+    <script src="{{ url_for('static', filename='js/sign_script.js') }}?v=auth-clean-1"></script>
+</body>
+
+</html>

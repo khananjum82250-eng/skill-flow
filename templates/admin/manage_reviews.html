@@ -1,0 +1,84 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Reviews{% endblock %}
+{% block content %}
+{% set total_reviews = reviews|length %}
+{% set rating_total = namespace(value=0) %}
+{% set pending_reviews = namespace(value=0) %}
+{% set approved_reviews = namespace(value=0) %}
+{% for review in reviews %}
+  {% set rating_total.value = rating_total.value + (review.rating or 0) %}
+  {% if review.status in ['pending', 'hidden', 'removed'] %}{% set pending_reviews.value = pending_reviews.value + 1 %}{% endif %}
+  {% if review.status in ['visible', 'approved'] %}{% set approved_reviews.value = approved_reviews.value + 1 %}{% endif %}
+{% endfor %}
+<div class="reviews-admin-page">
+<section class="admin-page-head reviews-admin-head">
+  <div>
+    <span class="admin-eyebrow">Feedback Center</span>
+    <h1>User Reviews</h1>
+    <p class="admin-muted">Monitor user feedback, ratings, and review status.</p>
+  </div>
+  <div class="reviews-head-icon"><i class="fa-solid fa-star"></i></div>
+</section>
+
+<section class="admin-grid admin-section reviews-stats-grid">
+  <article class="admin-card review-stat-card total"><span>Total Reviews</span><strong>{{ total_reviews }}</strong><i class="fa-solid fa-comments"></i></article>
+  <article class="admin-card review-stat-card rating"><span>Average Rating</span><strong>{{ '%.1f'|format((rating_total.value / total_reviews) if total_reviews else 0) }}</strong><i class="fa-solid fa-star-half-stroke"></i></article>
+  <article class="admin-card review-stat-card pending"><span>Pending Reviews</span><strong>{{ pending_reviews.value }}</strong><i class="fa-solid fa-clock"></i></article>
+  <article class="admin-card review-stat-card approved"><span>Approved Reviews</span><strong>{{ approved_reviews.value }}</strong><i class="fa-solid fa-circle-check"></i></article>
+</section>
+
+<section class="admin-toolbar admin-section reviews-search-toolbar">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search by reviewer, reviewed user, rating, experience, feedback, date, or status.</span>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section reviews-admin-panel">
+  <table class="admin-table reviews-admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Reviewer</th>
+        <th>Reviewed User</th>
+        <th>Rating</th>
+        <th>Experience</th>
+        <th>Feedback</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in reviews %}
+      <tr data-search-row data-search-text="{{ review.id }} {{ review.reviewer_name }} {{ review.reviewer_username }} {{ review.reviewed_name }} {{ review.reviewed_username }} {{ review.rating }} {{ review.experience_tag }} {{ review.feedback }} {{ review.created_at }} {{ review.status }}">
+        <td>#{{ review.id }}</td>
+        <td>{{ review.reviewer_name or review.reviewer_username }}</td>
+        <td>{{ review.reviewed_name or review.reviewed_username }}</td>
+        <td>{{ review.rating }}/5</td>
+        <td>{{ review.experience_tag or '-' }}</td>
+        <td>{{ review.feedback or '-' }}</td>
+        <td>{{ review.created_at }}</td>
+        <td><span class="status-pill status-{{ review.status }}">{{ review.status|title }}</span></td>
+        <td class="admin-actions">
+          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='visible') }}"><button class="action-btn soft" type="submit">Show</button></form>
+          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='remove') }}"><button class="action-btn danger" type="submit">Remove</button></form>
+          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='delete') }}"><button class="action-btn danger" data-confirm="Delete this review?" type="submit">Delete</button></form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="9">
+          <div class="admin-empty-state reviews-empty-state">
+            <i class="fa-solid fa-star"></i>
+            <strong>No reviews found yet</strong>
+            <span>User feedback will appear here after completed skill exchanges.</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

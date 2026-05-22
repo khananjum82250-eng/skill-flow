@@ -1,0 +1,416 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --blue:    #5A67D8;
+  --purple: #9F7AEA;
+  --green:  #22C55E;
+  --bg:     #F8FAFC;
+  --text:   #0F172A;
+  --muted:  #64748B;
+  --card:   #FFFFFF;
+  --radius: 18px;
+  --shadow: 0 4px 32px rgba(37,99,235,0.10);
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body{
+    background:
+      radial-gradient(circle at 15% 20%, rgba(90, 103, 216, 0.18), transparent 32%),
+      radial-gradient(circle at 85% 10%, rgba(159, 122, 234, 0.22), transparent 30%),
+      linear-gradient(135deg, #EBF4FF 0%, #ffffff 50%, #F4F5FB 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.container{
+    background-color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 28px;
+    box-shadow: 0 28px 80px rgba(76, 29, 149, 0.18);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    position: relative;
+    overflow: hidden;
+    width: 768px;
+    max-width: 100%;
+    min-height: 480px;
+}
+
+.logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  text-align: center; 
+  gap: 12px;
+}
+
+.logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 0;
+  filter: drop-shadow(0 2px 6px rgba(37,99,235,0.3));
+}
+
+.logo-icon svg {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.logo-text {
+  font-family: 'Nunito', sans-serif;
+  font-size: 21px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.container p{
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.3px;
+    margin: 20px 0;
+}
+
+.container span{
+    font-size: 17px;
+}
+
+.container a{
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    margin: 15px 0 10px;
+}
+
+.container button{
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    color: #fff;
+    font-size: 12px;
+    padding: 11px 34px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(107, 70, 193, 0.24);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.container button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(107, 70, 193, 0.3);
+}
+
+.container button.hidden{
+    background-color: transparent;
+    border-color: #fff;
+}
+
+.container form{
+    background-color: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    height: 100%;
+}
+
+.container input{
+    background-color: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    margin: 8px 0;
+    padding: 12px 15px;
+    font-size: 13px;
+    border-radius: 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.container input:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 4px rgba(159, 122, 234, 0.12);
+}
+
+.password-field {
+    position: relative;
+    width: 100%;
+}
+
+.password-field input {
+    padding-right: 44px;
+}
+
+.container .password-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    box-shadow: none;
+    color: var(--muted);
+    display: inline-flex;
+    height: 34px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+}
+
+.container .password-toggle:hover {
+    box-shadow: none;
+    transform: translateY(-50%);
+}
+
+.reset-container {
+    min-height: 480px;
+}
+
+.reset-form {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    left: 0;
+    padding: 36px 40px;
+    width: 100%;
+    z-index: 2;
+}
+
+.reset-form form {
+    height: auto;
+    padding: 0;
+    width: min(360px, 100%);
+}
+
+.reset-brand {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.otp-timer {
+    align-items: center;
+    background: rgba(90, 103, 216, 0.08);
+    border: 1px solid rgba(90, 103, 216, 0.14);
+    border-radius: 14px;
+    color: var(--muted);
+    display: flex;
+    font-size: 13px;
+    font-weight: 700;
+    gap: 8px;
+    justify-content: center;
+    margin: 8px 0 2px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.otp-timer strong {
+    color: var(--blue);
+    font-weight: 900;
+}
+
+.otp-timer.expired {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.18);
+}
+
+.otp-timer.expired strong {
+    color: #dc2626;
+}
+
+.resend-otp-form {
+    margin-top: 8px;
+}
+
+.container .resend-otp-button {
+    background: transparent;
+    border-color: rgba(90, 103, 216, 0.28);
+    box-shadow: none;
+    color: var(--blue);
+}
+
+.container button:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
+    transform: none;
+}
+
+.form-container{
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+.sign-in{
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+
+.container.active .sign-in{
+    transform: translateX(100%);
+}
+
+.sign-up{
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+.container.active .sign-up{
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+    animation: move 0.6s;
+}
+
+@keyframes move{
+    0%, 49.99%{
+        opacity: 0;
+        z-index: 1;
+    }
+    50%, 100%{
+        opacity: 1;
+        z-index: 5;
+    }
+}
+
+.social-icons{
+    margin: 20px 0;
+}
+
+.social-icons a{
+    border: 1px solid #ccc;
+    border-radius: 20%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 3px;
+    width: 40px;
+    height: 40px;
+}
+
+.toggle-container{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.6s ease-in-out;
+    border-radius: 150px 0 0 100px;
+    z-index: 1000;
+}
+
+.container.active .toggle-container{
+    transform: translateX(-100%);
+    border-radius: 0 150px 100px 0;
+}
+
+.toggle{
+    background-color: rgba(37,99,235,0.35);
+    height: 100%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    color: #fff;
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: all 0.6s ease-in-out;
+}
+
+.container.active .toggle{
+    transform: translateX(50%);
+}
+
+.toggle-panel{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 30px;
+    text-align: center;
+    top: 0;
+    transform: translateX(0);
+    transition: all 0.6s ease-in-out;
+}
+
+.toggle-left{
+    transform: translateX(-200%);
+}
+
+.container.active .toggle-left{
+    transform: translateX(0);
+}
+
+.toggle-right{
+    right: 0;
+    transform: translateX(0);
+}
+
+.container.active .toggle-right{
+    transform: translateX(200%);
+}
+
+/* ========== FLASH MESSAGE STYLES ========== */
+.flash-messages {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.flash-message {
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.flash-message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.flash-message.success {
+    background: #d4edda;
+    color: #155724;
+}

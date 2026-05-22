@@ -1,0 +1,81 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="notifications-page">
+  <div class="settings-heading">
+    <div>
+      <span class="admin-eyebrow">Admin inbox</span>
+      <h1>Notifications</h1>
+      <p>Track registrations, skill swap activity, payment events, chat unlocks, and system alerts.</p>
+    </div>
+    <form method="post" action="{{ url_for('admin_notifications_mark_all_read') }}">
+      <button class="admin-button" type="submit"><i class="fa-solid fa-check-double"></i> Mark All as Read</button>
+    </form>
+  </div>
+
+  <div class="notification-filters">
+    <a class="{{ 'active' if status_filter == 'all' }}" href="{{ url_for('admin_notifications_page', filter='all') }}">All <span>{{ counts.all }}</span></a>
+    <a class="{{ 'active' if status_filter == 'unread' }}" href="{{ url_for('admin_notifications_page', filter='unread') }}">Unread <span>{{ counts.unread }}</span></a>
+    <a class="{{ 'active' if status_filter == 'read' }}" href="{{ url_for('admin_notifications_page', filter='read') }}">Read <span>{{ counts.read }}</span></a>
+  </div>
+
+  <section class="admin-card admin-section notification-send-card">
+    <span><i class="fa-solid fa-paper-plane"></i> Send User Notification</span>
+    <form class="admin-form" method="post" action="{{ url_for('admin_send_user_notification') }}">
+      <select name="target">
+        <option value="all">All users</option>
+        <option value="one">Selected user</option>
+      </select>
+      <select name="user_id">
+        <option value="">Choose user for selected-user send</option>
+        {% for user in users %}
+        <option value="{{ user.id }}">{{ user.full_name or user.username }} (@{{ user.username }})</option>
+        {% endfor %}
+      </select>
+      <input type="text" name="notification_type" value="admin" placeholder="Notification type">
+      <input type="text" name="title" placeholder="Notification title" required>
+      <textarea name="message" placeholder="Notification message" required></textarea>
+      <button class="admin-button" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Notification</button>
+    </form>
+  </section>
+
+  <section class="admin-toolbar admin-section notifications-search-toolbar">
+    <div class="admin-toolbar-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <span>Search notifications by title, message, type, related ID, or date.</span>
+    </div>
+  </section>
+
+  <section class="notification-list">
+    {% for item in notifications %}
+      <article class="notification-item {{ 'unread' if not item.is_read else 'read' }}" data-search-row data-search-text="{{ item.title }} {{ item.message }} {{ item.notification_type }} {{ item.related_id }} {{ item.created_at }} {{ 'unread' if not item.is_read else 'read' }}">
+        <div class="notification-icon"><i class="{{ item.icon or 'fa-solid fa-bell' }}"></i></div>
+        <div class="notification-content">
+          <div class="notification-title-row">
+            <h2>{{ item.title }}</h2>
+            <span class="status-pill status-{{ 'active' if not item.is_read else 'reviewed' }}">{{ 'Unread' if not item.is_read else 'Read' }}</span>
+          </div>
+          <p>{{ item.message or 'No details provided.' }}</p>
+          <div class="notification-meta">
+            <span><i class="fa-solid fa-layer-group"></i> {{ item.notification_type|title }}</span>
+            {% if item.related_id %}<span><i class="fa-solid fa-link"></i> #{{ item.related_id }}</span>{% endif %}
+            <span><i class="fa-regular fa-clock"></i> {{ item.created_at }}</span>
+          </div>
+        </div>
+        <div class="notification-actions">
+          {% if not item.is_read %}
+            <form method="post" action="{{ url_for('admin_notification_action', notification_id=item.id, action='read') }}">
+              <button class="action-btn soft" type="submit"><i class="fa-solid fa-check"></i> Mark as Read</button>
+            </form>
+          {% endif %}
+          <form method="post" action="{{ url_for('admin_notification_action', notification_id=item.id, action='delete') }}">
+            <button class="action-btn danger" type="submit" data-confirm="Delete this notification?"><i class="fa-solid fa-trash"></i> Delete</button>
+          </form>
+        </div>
+      </article>
+    {% else %}
+      <div class="admin-empty">No notifications found.</div>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

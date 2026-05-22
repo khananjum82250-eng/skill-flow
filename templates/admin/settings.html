@@ -1,0 +1,140 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="settings-page">
+  <div class="settings-heading">
+    <div>
+      <span class="admin-eyebrow">Admin controls</span>
+      <h1>Settings</h1>
+      <p>Manage platform identity, PhonePe payments, email, security, notifications, theme, and backups.</p>
+    </div>
+    <div class="settings-status">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>Protected panel</span>
+    </div>
+  </div>
+
+  <form class="settings-form" method="post" enctype="multipart/form-data" action="{{ url_for('admin_settings_page') }}">
+    <div class="settings-grid">
+      <section class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-sliders"></i></span>
+          <div><h2>Platform Settings</h2><p>Brand and public website controls</p></div>
+        </div>
+        <div class="settings-fields">
+          <label>Platform Name<input type="text" name="platform_name" value="{{ settings.platform_name or 'SkillFlow' }}"></label>
+          <label>Platform Logo Upload<input type="file" name="platform_logo" accept="image/*"></label>
+          {% if settings.platform_logo %}<span class="settings-hint">Current logo: {{ settings.platform_logo }}</span>{% endif %}
+          <label>Admin Username<input type="text" name="admin_username" value="{{ settings.admin_username or admin.username or 'admin' }}"></label>
+          <label>Website Tagline<input type="text" name="website_tagline" value="{{ settings.website_tagline or '' }}" placeholder="Learn. Swap. Grow."></label>
+          <label class="toggle-row"><span>Maintenance Mode</span><input type="checkbox" name="maintenance_mode" value="on" {% if settings.maintenance_mode == 'on' %}checked{% endif %}><i></i></label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-credit-card"></i></span>
+          <div><h2>PhonePe Settings</h2><p>Gateway keys, pricing, and currency</p></div>
+        </div>
+        <div class="settings-fields">
+          <label>PhonePe Client ID<input type="text" name="phonepe_client_id" value="{{ settings.phonepe_client_id or '' }}"></label>
+          <label>PhonePe Client Secret<input type="password" name="phonepe_client_secret" value="" placeholder="Leave blank to keep existing"></label>
+          <label>Merchant ID<input type="text" name="phonepe_merchant_id" value="{{ settings.phonepe_merchant_id or '' }}" placeholder="Optional if your PhonePe account requires it"></label>
+          <label>Payment Mode<select name="phonepe_payment_mode">
+            <option value="test" {% if settings.phonepe_payment_mode != 'live' %}selected{% endif %}>Test</option>
+            <option value="live" {% if settings.phonepe_payment_mode == 'live' %}selected{% endif %}>Live</option>
+          </select></label>
+          <label>Chat Unlock Price<input type="number" min="0" step="1" name="chat_unlock_price" value="{{ settings.chat_unlock_price or '99' }}"></label>
+          <label>Currency Selection<select name="currency">
+            {% for currency in ['INR', 'USD', 'EUR', 'GBP'] %}
+              <option value="{{ currency }}" {% if settings.currency == currency %}selected{% endif %}>{{ currency }}</option>
+            {% endfor %}
+          </select></label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-envelope-circle-check"></i></span>
+          <div><h2>Email & OTP Settings</h2><p>SMTP and verification timing</p></div>
+        </div>
+        <div class="settings-fields">
+          <label>Sender Email<input type="email" name="sender_email" value="{{ settings.sender_email or '' }}"></label>
+          <label>SMTP Host<input type="text" name="smtp_host" value="{{ settings.smtp_host or '' }}"></label>
+          <label>SMTP Port<input type="number" min="1" name="smtp_port" value="{{ settings.smtp_port or '587' }}"></label>
+          <label>OTP Expiry Time<input type="number" min="1" name="otp_expiry_time" value="{{ settings.otp_expiry_time or '10' }}"><span>minutes</span></label>
+          <label>Resend OTP Cooldown Time<input type="number" min="0" name="resend_otp_cooldown" value="{{ settings.resend_otp_cooldown or '60' }}"><span>seconds</span></label>
+          <button class="action-btn soft settings-inline-button" type="submit" name="action" value="test_email"><i class="fa-solid fa-paper-plane"></i> Test Email</button>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-lock"></i></span>
+          <div><h2>Security Settings</h2><p>Password and access behavior</p></div>
+        </div>
+        <div class="settings-fields">
+          <label>Current Password<input data-password-field type="password" name="current_password"></label>
+          <label>Change Password<input data-password-field type="password" name="new_password" placeholder="Minimum 8 characters"></label>
+          <label>Session Timeout<input type="number" min="1" name="session_timeout" value="{{ settings.session_timeout or '24' }}"><span>hours</span></label>
+          <label class="toggle-row"><span>Enable User Registration</span><input type="checkbox" name="user_registration_enabled" value="on" {% if settings.user_registration_enabled != 'off' %}checked{% endif %}><i></i></label>
+          <button class="action-btn soft settings-inline-button" type="button" data-toggle-password><i class="fa-regular fa-eye"></i> Password Visibility</button>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-bell"></i></span>
+          <div><h2>Notification Settings</h2><p>Choose admin communication channels</p></div>
+        </div>
+        <div class="settings-fields settings-toggle-list">
+          <label class="toggle-row"><span>Enable Email Notifications</span><input type="checkbox" name="email_notifications_enabled" value="on" {% if settings.email_notifications_enabled != 'off' %}checked{% endif %}><i></i></label>
+          <label class="toggle-row"><span>Enable Admin Alerts</span><input type="checkbox" name="admin_alerts_enabled" value="on" {% if settings.admin_alerts_enabled != 'off' %}checked{% endif %}><i></i></label>
+          <label class="toggle-row"><span>Enable Payment Notifications</span><input type="checkbox" name="payment_notifications_enabled" value="on" {% if settings.payment_notifications_enabled != 'off' %}checked{% endif %}><i></i></label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-palette"></i></span>
+          <div><h2>Theme & Appearance</h2><p>Visual preferences for SkillFlow</p></div>
+        </div>
+        <div class="settings-fields">
+          <label class="toggle-row"><span>Light/Dark Mode</span><input data-admin-theme-toggle type="checkbox" name="appearance_mode" value="dark" {% if settings.appearance_mode == 'dark' %}checked{% endif %}><i></i></label>
+          <label>Primary Theme Color<input type="color" name="primary_theme_color" value="{{ settings.primary_theme_color or '#2563EB' }}"></label>
+          <label>Accent Color<input type="color" name="accent_color" value="{{ settings.accent_color or '#22C55E' }}"></label>
+        </div>
+      </section>
+
+      <section class="settings-card settings-card-wide">
+        <div class="settings-card-head">
+          <span class="settings-icon"><i class="fa-solid fa-database"></i></span>
+          <div><h2>Database & Backup Settings</h2><p>Backup status and restore preparation</p></div>
+        </div>
+        <div class="settings-fields backup-fields">
+          <label>Restore Backup Option<input type="file" name="restore_backup" accept=".sql,.zip,.bak"></label>
+          <div class="backup-time"><span>Last Backup Time</span><strong>{{ settings.last_backup_time or 'No backup recorded yet' }}</strong></div>
+          <button class="action-btn soft settings-inline-button" type="submit" name="action" value="backup_now"><i class="fa-solid fa-cloud-arrow-down"></i> Backup Now</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="settings-actions">
+      <button class="admin-button" type="submit" name="action" value="save_settings"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+      <button class="action-btn soft" type="reset"><i class="fa-solid fa-rotate-left"></i> Reset Settings</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll("[data-toggle-password]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const fields = document.querySelectorAll("[data-password-field]");
+      const show = Array.from(fields).some((field) => field.type === "password");
+      fields.forEach((field) => { field.type = show ? "text" : "password"; });
+      const icon = button.querySelector("i");
+      if (icon) icon.className = show ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+    });
+  });
+</script>
+{% endblock %}

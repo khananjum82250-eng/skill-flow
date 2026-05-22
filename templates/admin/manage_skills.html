@@ -1,0 +1,127 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Skills{% endblock %}
+{% block content %}
+<div class="skills-admin-page">
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">Skill Directory</span>
+    <h1>Skills</h1>
+    <p class="admin-muted">Track what users can teach and what they want to learn across SkillFlow.</p>
+  </div>
+  <div class="admin-page-count">
+    <i class="fa-solid fa-layer-group"></i>
+    <span>{{ skills|length }} skill profiles</span>
+  </div>
+</section>
+
+<section class="admin-toolbar admin-section">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search by user, offered skill, wanted skill, or date.</span>
+  </div>
+  <div class="admin-filter-chips">
+    <span class="admin-filter-chip"><i class="fa-solid fa-chalkboard-user"></i> Teaches</span>
+    <span class="admin-filter-chip info"><i class="fa-solid fa-book-open-reader"></i> Learns</span>
+  </div>
+</section>
+
+<section class="admin-section skill-category-layout">
+  <div class="admin-card skill-category-form-card">
+    <span>Manage Skill Categories</span>
+    <form class="admin-form" method="post" action="{{ url_for('admin_save_skill_category') }}">
+      <input type="text" name="category_name" placeholder="Category name" required>
+      <input type="text" name="icon" placeholder="FontAwesome icon class" value="fa-solid fa-layer-group">
+      <textarea name="keywords" placeholder="Keywords separated by commas"></textarea>
+      <button class="admin-button" type="submit"><i class="fa-solid fa-plus"></i> Save Category</button>
+    </form>
+  </div>
+  <div class="admin-table-wrap skill-category-table-card">
+    <table class="admin-table skill-category-table">
+      <thead><tr><th>Category</th><th>Icon</th><th>Keywords</th><th>Users</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for category in categories %}
+        <tr data-search-row>
+          <td><input form="category-form-{{ category.id }}" name="category_name" value="{{ category.category_name }}" required></td>
+          <td><input form="category-form-{{ category.id }}" name="icon" value="{{ category.icon or 'fa-solid fa-layer-group' }}"></td>
+          <td><input form="category-form-{{ category.id }}" name="keywords" value="{{ category.keywords or '' }}"></td>
+          <td>{{ category.saved_users or 0 }}</td>
+          <td class="admin-actions">
+            <form id="category-form-{{ category.id }}" method="post" action="{{ url_for('admin_save_skill_category') }}">
+              <input type="hidden" name="category_id" value="{{ category.id }}">
+              <button class="action-btn soft" type="submit">Save</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_delete_skill_category', category_id=category.id) }}">
+              <button class="action-btn danger" type="submit" data-confirm="Delete this category?">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No categories found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section admin-data-panel">
+  <table class="admin-table skills-admin-table modern-admin-table">
+    <thead>
+      <tr>
+        <th>Skill Owner</th>
+        <th>Skill Name</th>
+        <th>Categories</th>
+        <th>Type</th>
+        <th>User Count</th>
+        <th>Joined</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for skill in skills %}
+      <tr data-search-row>
+        <td>
+          <span class="admin-inline-user">
+            <strong>{{ skill.full_name or skill.username }}</strong>
+            <span class="admin-muted">(@{{ skill.username }})</span>
+          </span>
+        </td>
+        <td>
+          <div class="admin-skill-stack">
+            <span><i class="fa-solid fa-chalkboard-user"></i> {{ skill.teach_skill or 'No offered skill' }}</span>
+            <span><i class="fa-solid fa-book-open-reader"></i> {{ skill.learn_skill or 'No wanted skill' }}</span>
+          </div>
+        </td>
+        <td>{{ skill.categories or '-' }}</td>
+        <td>
+          {% if skill.teach_skill and skill.learn_skill %}
+          <span class="status-pill status-active">Teach + Learn</span>
+          {% elif skill.teach_skill %}
+          <span class="status-pill status-verified">Teach</span>
+          {% else %}
+          <span class="status-pill status-under_review">Learn</span>
+          {% endif %}
+        </td>
+        <td><span class="admin-count-pill"><i class="fa-solid fa-user"></i> 1</span></td>
+        <td>{{ skill.created_at or '-' }}</td>
+        <td>
+          <div class="admin-actions">
+            <a class="admin-action-btn" href="mailto:{{ skill.email }}"><i class="fa-solid fa-envelope"></i> Email</a>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">
+          <div class="admin-empty-state">
+            <i class="fa-solid fa-layer-group"></i>
+            <strong>No skills found.</strong>
+            <span>User skill entries will appear after profiles are completed.</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p class="admin-muted">Welcome, {{ admin.full_name or admin.username }}.</p>
+
+<section class="admin-grid admin-section admin-gradient-stats">
+  <article class="admin-card"><span>Total Users</span><strong>{{ stats.users }}</strong></article>
+  <article class="admin-card"><span>Total Requests</span><strong>{{ stats.requests }}</strong></article>
+  <article class="admin-card"><span>Total Revenue</span><strong>Rs {{ stats.revenue }}</strong></article>
+  <article class="admin-card"><span>Payments</span><strong>{{ stats.payments }}</strong></article>
+  <article class="admin-card"><span>Active Users</span><strong>{{ stats.active_users }}</strong></article>
+  <article class="admin-card"><span>Deleted Accounts</span><strong>{{ stats.deleted_accounts }}</strong></article>
+  <article class="admin-card"><span>Fake Email Attempts</span><strong>{{ stats.fake_email_attempts }}</strong></article>
+  <article class="admin-card"><span>Rewards Claimed</span><strong>{{ stats.rewards_claimed }}</strong></article>
+</section>
+
+<section class="admin-two-col admin-section">
+  <div class="admin-chart dashboard-chart-card">
+    <div class="chart-card-header">
+      <div>
+        <span class="admin-eyebrow">Payments</span>
+        <h2 id="revenueChartTitle">Daily Revenue</h2>
+      </div>
+      <div class="chart-switcher" aria-label="Revenue chart period">
+        <button type="button" class="chart-switch-btn" data-revenue-direction="-1" aria-label="Show previous revenue period"><i class="fa-solid fa-arrow-left"></i></button>
+        <span class="chart-chip" id="revenueChartMode">Daily</span>
+        <button type="button" class="chart-switch-btn" data-revenue-direction="1" aria-label="Show next revenue period"><i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+    <div class="chart-canvas-wrap chart-line-wrap">
+      <canvas id="revenueTrendChart"></canvas>
+    </div>
+  </div>
+  <div class="admin-chart dashboard-chart-card">
+    <div class="chart-card-header">
+      <div>
+        <span class="admin-eyebrow">Users</span>
+        <h2>User Growth</h2>
+      </div>
+      <span class="chart-chip">Live data</span>
+    </div>
+    <div class="chart-canvas-wrap chart-pie-wrap">
+      <canvas id="userGrowthPieChart"></canvas>
+    </div>
+    <div class="revenue-chart-legend" id="userGrowthPieLegend"></div>
+  </div>
+</section>
+
+<section class="admin-section">
+  <h2>Recent Payments</h2>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for payment in recent_transactions %}
+        <tr data-search-row><td>#{{ payment.id }}</td><td>{{ payment.username }}</td><td>Rs {{ payment.amount }}</td><td><span class="status-pill status-{{ payment.status|lower }}">{{ payment.status }}</span></td><td>{{ payment.created_at }}</td></tr>
+        {% else %}<tr><td colspan="5">No payments yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const dashboardChartData = {{ chart_data|tojson }};
+
+  const skillFlowColors = {
+    blue: '#2563EB',
+    purple: '#7C3AED',
+    offWhite: '#F8FAFC',
+    green: '#22C55E',
+    amber: '#F59E0B',
+    red: '#EF4444',
+    text: document.body.classList.contains('admin-theme-dark') ? '#E5E7EB' : '#0F172A',
+    muted: document.body.classList.contains('admin-theme-dark') ? '#94A3B8' : '#64748B'
+  };
+
+  function formatCurrency(value) {
+    return `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
+  }
+
+  function formatChartNumber(value) {
+    return Number(value || 0).toLocaleString('en-IN');
+  }
+
+  let revenueTrendChart;
+  const revenueModes = [
+    {
+      key: 'daily',
+      label: 'Daily',
+      title: 'Daily Revenue',
+      labels: dashboardChartData.revenue_daily_labels || [],
+      data: dashboardChartData.revenue_daily || []
+    },
+    {
+      key: 'weekly',
+      label: 'Weekly',
+      title: 'Weekly Revenue',
+      labels: dashboardChartData.revenue_weekly_labels || [],
+      data: dashboardChartData.revenue_weekly || []
+    },
+    {
+      key: 'monthly',
+      label: 'Monthly',
+      title: 'Monthly Revenue',
+      labels: dashboardChartData.revenue_monthly_labels || [],
+      data: dashboardChartData.revenue_monthly || []
+    },
+    {
+      key: 'yearly',
+      label: 'Yearly',
+      title: 'Yearly Revenue',
+      labels: dashboardChartData.months,
+      data: dashboardChartData.revenue_yearly || []
+    }
+  ];
+  let activeRevenueMode = 0;
+
+  function createRevenueTrendChart() {
+    const canvas = document.getElementById('revenueTrendChart');
+    if (!canvas || !window.Chart) return;
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.parentElement.offsetHeight || 280);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.26)');
+    gradient.addColorStop(0.55, 'rgba(124, 58, 237, 0.12)');
+    gradient.addColorStop(1, 'rgba(248, 250, 252, 0)');
+    const mode = revenueModes[activeRevenueMode];
+
+    revenueTrendChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: mode.labels,
+        datasets: [{
+          label: mode.title,
+          data: mode.data,
+          borderColor: skillFlowColors.blue,
+          backgroundColor: gradient,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: skillFlowColors.purple,
+          pointBorderWidth: 2,
+          pointHoverBackgroundColor: skillFlowColors.green,
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 3,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.42
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 900, easing: 'easeOutQuart' },
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0F172A',
+            titleColor: '#fff',
+            bodyColor: '#E2E8F0',
+            padding: 12,
+            cornerRadius: 12,
+            displayColors: false,
+            callbacks: {
+              label: (context) => formatCurrency(context.parsed.y)
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: skillFlowColors.muted, font: { weight: 700 } }
+          },
+          y: {
+            beginAtZero: true,
+            grace: '15%',
+            grid: { color: 'rgba(148, 163, 184, 0.18)', drawBorder: false },
+            ticks: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  function updateRevenueTrendChart(direction = 1) {
+    if (!revenueTrendChart) return;
+    activeRevenueMode = (activeRevenueMode + direction + revenueModes.length) % revenueModes.length;
+    const mode = revenueModes[activeRevenueMode];
+    document.getElementById('revenueChartTitle').textContent = mode.title;
+    document.getElementById('revenueChartMode').textContent = mode.label;
+    revenueTrendChart.data.labels = mode.labels;
+    revenueTrendChart.data.datasets[0].label = mode.title;
+    revenueTrendChart.data.datasets[0].data = mode.data;
+    revenueTrendChart.update();
+  }
+
+  function createUserGrowthPieChart() {
+    const canvas = document.getElementById('userGrowthPieChart');
+    if (!canvas || !window.Chart) return;
+    const rawValues = (dashboardChartData.user_pie_values || []).map((value) => Number(value || 0));
+    const total = rawValues.reduce((sum, value) => sum + value, 0);
+    const values = total ? rawValues : [1];
+    const labels = total ? dashboardChartData.user_pie_labels : ['No users yet'];
+    const colors = total
+      ? [skillFlowColors.green, skillFlowColors.blue, skillFlowColors.purple]
+      : ['#CBD5E1'];
+
+    renderUserGrowthLegend(dashboardChartData.user_pie_labels, rawValues, total);
+
+    new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderColor: skillFlowColors.offWhite,
+          borderWidth: 4,
+          hoverOffset: 6,
+          spacing: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { animateRotate: true, duration: 900, easing: 'easeOutQuart' },
+        plugins: {
+          legend: {
+            display: false,
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              boxHeight: 10,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              color: skillFlowColors.text,
+              padding: 18,
+              font: { weight: 800 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0F172A',
+            titleColor: '#fff',
+            bodyColor: '#E2E8F0',
+            padding: 12,
+            cornerRadius: 12,
+            callbacks: {
+              label: (context) => {
+              const value = Number(context.parsed || 0);
+              const percent = total ? ((value / total) * 100).toFixed(1) : '0.0';
+              return `${context.label}: ${value.toLocaleString('en-IN')} (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderUserGrowthLegend(labels, values, total) {
+    const legend = document.getElementById('userGrowthPieLegend');
+    if (!legend) return;
+    const colors = [skillFlowColors.green, skillFlowColors.blue, skillFlowColors.purple];
+    legend.innerHTML = labels.map((label, index) => {
+      const value = Number(values[index] || 0);
+      const percent = total ? ((value / total) * 100).toFixed(1) : '0.0';
+      return `
+        <div class="revenue-legend-item">
+          <span class="revenue-legend-dot" style="background:${colors[index]}"></span>
+          <span class="revenue-legend-label">${label}</span>
+          <strong>${percent}%</strong>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    createRevenueTrendChart();
+    createUserGrowthPieChart();
+    document.querySelectorAll('[data-revenue-direction]').forEach((button) => {
+      button.addEventListener('click', () => updateRevenueTrendChart(Number(button.dataset.revenueDirection || 1)));
+    });
+  });
+</script>
+{% endblock %}

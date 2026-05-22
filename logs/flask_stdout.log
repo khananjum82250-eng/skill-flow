@@ -1,0 +1,4 @@
+[Config Warning] SECRET_KEY is not set. Using a persistent local development key.
+[Config Warning] ADMIN_PASSWORD is not set. Using the development default password.
+ * Serving Flask app 'app'
+ * Debug mode: off

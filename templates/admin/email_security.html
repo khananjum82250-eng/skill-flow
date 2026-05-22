@@ -1,0 +1,62 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Email Security{% endblock %}
+{% block content %}
+<div class="email-security-admin-page">
+<section class="admin-page-head email-security-head">
+  <div>
+    <span class="admin-eyebrow">Security Center</span>
+    <h1>Email Security</h1>
+    <p class="admin-muted">Review blocked disposable or fake email registration attempts.</p>
+  </div>
+  <div class="email-security-shield"><i class="fa-solid fa-shield-halved"></i></div>
+</section>
+
+<section class="admin-grid admin-section email-security-stats">
+  <article class="admin-card email-security-stat attempts"><span>Blocked Attempts</span><strong>{{ stats.attempts }}</strong><i class="fa-solid fa-user-shield"></i></article>
+  <article class="admin-card email-security-stat domains"><span>Flagged Domains</span><strong>{{ stats.domains }}</strong><i class="fa-solid fa-at"></i></article>
+</section>
+
+<section class="admin-toolbar admin-section email-security-toolbar">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search by email, domain, source, IP address, or date.</span>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section email-security-panel">
+  <table class="admin-table email-security-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Domain</th>
+        <th>Source</th>
+        <th>IP Address</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attempt in attempts %}
+      <tr data-search-row data-search-text="{{ attempt.id }} {{ attempt.email }} {{ attempt.domain }} {{ attempt.source }} {{ attempt.ip_address }} {{ attempt.created_at }}">
+        <td>#{{ attempt.id }}</td>
+        <td>{{ attempt.email }}</td>
+        <td><span class="status-pill status-unverified">{{ attempt.domain }}</span></td>
+        <td>{{ attempt.source }}</td>
+        <td>{{ attempt.ip_address or '-' }}</td>
+        <td>{{ attempt.created_at }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">
+          <div class="admin-empty-state email-security-empty">
+            <i class="fa-solid fa-shield-heart"></i>
+            <strong>No fake or disposable email attempts found</strong>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat - Skill Swapping</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=user-mobile-responsive-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skillflow_ui.css') }}?v=safe-dropdown-theme-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chat_style.css') }}?v=chat-input-integrated-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user_scrollbar.css') }}?v=user-scrollbar-theme-1">
+</head>
+<body class="app-layout chat-page">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-box">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" fill="url(#logoGrad)"/>
+            <path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stop-color="#9b85ff"/>
+                <stop offset="100%" stop-color="#7C3AED"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">SkillFlow</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard_page') }}" class="nav-item">
+        <i class="fa-solid fa-home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('skill_categories_page') }}" class="nav-item">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Skill Categories</span>
+      </a>
+      <a href="{{ url_for('search_page') }}" class="nav-item">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>Search</span>
+      </a>
+      <a href="{{ url_for('requests_page') }}" class="nav-item">
+        <i class="fa-solid fa-handshake"></i>
+        <span>Requests</span>
+      </a>
+      <a href="{{ url_for('chat_page') }}" class="nav-item active">
+        <i class="fa-regular fa-message"></i>
+        <span>Chat</span>
+      </a>
+      <a href="{{ url_for('notifications_page') }}" class="nav-item">
+        <i class="fa-solid fa-bell"></i>
+        <span>Notifications</span>
+        {% if user_nav_unread_count %}<span class="nav-mini-badge">{{ user_nav_unread_count }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('reviews_page') }}" class="nav-item">
+        <i class="fa-solid fa-star"></i>
+        <span>Reviews</span>
+      </a>
+      <a href="{{ url_for('daily_activity_page') }}" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Daily Activity</span>
+      </a>
+      <a href="{{ url_for('profile_page') }}" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('logout') }}" class="nav-item logout-item">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="glass-panel top-header sf-dashboard-header">
+      <div class="header-left dashboard-header-title-block">
+        <h1>Chat</h1>
+        <p>Continue your accepted skill exchange conversations.</p>
+      </div>
+      <a class="header-profile-card dashboard-header-profile-block" href="{{ url_for('profile_page') }}">
+        <img src="{{ user.avatar_url }}" alt="{{ user.username }} avatar">
+        <div>
+          <span>Welcome,</span>
+          <strong>{{ user.full_name.split(' ')[0] if user.full_name else user.username }}</strong>
+        </div>
+      </a>
+    </header>
+
+    <section class="glass-panel chat-shell" id="chatApp" data-user-id="{{ user.id }}" data-selected-request-id="{{ selected_request_id }}" data-selected-user-id="{{ selected_user_id }}">
+      <div class="chat-sidebar-panel">
+        <div class="chat-list-header">
+          <h2 class="section-title">Accepted Chats</h2>
+          <span id="chatCount" class="chat-count">0</span>
+        </div>
+        <div class="chat-list" id="chatList">
+          <div class="chat-empty">Loading chats...</div>
+        </div>
+      </div>
+
+      <div class="chat-window-panel">
+        <div class="chat-window-empty" id="emptyState">
+          <i class="fa-regular fa-message"></i>
+          <p>Select a user to start chatting</p>
+        </div>
+
+        <div class="chat-window" id="activeChat" hidden>
+          <div class="chat-window-header">
+            <div class="chat-user-summary">
+              <img id="activeAvatar" class="chat-avatar" src="" alt="User avatar">
+              <div>
+                <h2 id="activeName">Chat</h2>
+                <span id="activeStatus" class="chat-status">Locked</span>
+              </div>
+            </div>
+            <button id="unlockBtn" class="btn-primary chat-unlock-button" type="button">
+              <i class="fa-solid fa-lock"></i>
+              Unlock Chat
+            </button>
+            <button id="reportChatBtn" class="btn-primary chat-unlock-button" type="button" hidden>
+              <i class="fa-solid fa-flag"></i>
+              Report
+            </button>
+            <button id="unfollowChatBtn" class="btn-primary chat-unlock-button" type="button" hidden>
+              <i class="fa-solid fa-user-minus"></i>
+              Unfollow
+            </button>
+          </div>
+
+          <div class="chat-lock-banner" id="lockBanner">
+            <i class="fa-solid fa-lock"></i>
+            <span>Chat locked. Complete payment to unlock chat.</span>
+          </div>
+
+          <div class="chat-contact-box" id="contactBox" hidden></div>
+          <div class="messages" id="messagesContainer"></div>
+
+          <form class="chat-input-area" id="chatForm" hidden enctype="multipart/form-data">
+            <div class="chat-emoji-picker" id="emojiPicker" hidden></div>
+            <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx,.txt,.zip" hidden>
+            <div class="chat-input-shell">
+              <button id="emojiBtn" class="chat-tool-button chat-emoji-button" type="button" aria-label="Add emoji" disabled>
+                <i class="fa-regular fa-face-grin"></i>
+              </button>
+              <button id="attachBtn" class="chat-tool-button chat-attach-button" type="button" aria-label="Attach file" disabled>
+                <i class="fa-solid fa-link"></i>
+              </button>
+              <input type="text" id="chatInput" placeholder="Chat locked. Complete payment to unlock chat." autocomplete="off" disabled>
+            </div>
+            <div class="chat-selected-file" id="selectedFilePreview" hidden>
+              <span id="selectedFileName"></span>
+              <button id="removeSelectedFile" type="button" aria-label="Remove selected file"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button id="sendBtn" class="btn-primary chat-send-button" type="submit" disabled>
+              <i class="fa-regular fa-paper-plane"></i>
+              <span>Send</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/skillflow_ui.js') }}?v=csrf-1"></script>
+  <script src="{{ url_for('static', filename='js/user.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chat_script.js') }}?v=chat-input-integrated-2"></script>
+</body>
+</html>

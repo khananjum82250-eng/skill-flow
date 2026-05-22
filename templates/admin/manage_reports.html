@@ -1,0 +1,56 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="reports-admin-page">
+<section class="admin-page-head reports-admin-head">
+  <div>
+    <span class="admin-eyebrow">Moderation Center</span>
+    <h1>Reports & Feedback</h1>
+    <p class="admin-muted">Review user reports, feedback, and moderation actions.</p>
+  </div>
+  <div class="reports-head-icon"><i class="fa-solid fa-flag"></i></div>
+</section>
+
+<section class="admin-toolbar admin-section reports-search-toolbar">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search by reporter, reported user, type, description, date, or status.</span>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section reports-admin-panel">
+  <table class="admin-table reports-admin-table">
+    <thead><tr><th>ID</th><th>Reporter</th><th>Reported User</th><th>Type</th><th>Description</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for item in reports %}
+      <tr data-search-row data-search-text="{{ item.id }} {{ item.reporter_name }} {{ item.reported_name }} {{ item.report_type }} {{ item.reason }} {{ item.description }} {{ item.created_at }} {{ item.status }}">
+        <td>#{{ item.id }}</td>
+        <td>{{ item.reporter_name }}</td>
+        <td>{{ item.reported_name }}</td>
+        <td>{{ item.report_type or item.reason }}</td>
+        <td>{{ item.description or '-' }}</td>
+        <td>{{ item.created_at }}</td>
+        <td><span class="status-pill status-{{ item.status|lower }}">{{ item.status }}</span></td>
+        <td class="admin-actions">
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='reviewed') }}"><button class="action-btn soft" type="submit">Reviewed</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='resolved') }}"><button class="action-btn soft" type="submit">Resolve</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='block') }}"><button class="action-btn danger" type="submit">Block User</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='delete') }}"><button class="action-btn danger" data-confirm="Delete this report?" type="submit">Delete</button></form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8">
+          <div class="admin-empty-state reports-empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <strong>No reports found</strong>
+            <span>User reports and feedback will appear here.</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

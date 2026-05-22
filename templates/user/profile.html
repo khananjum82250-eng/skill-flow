@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillFlow - Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=user-mobile-responsive-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skillflow_ui.css') }}?v=safe-dropdown-theme-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile_style.css') }}?v=profile-settings-modal-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user_scrollbar.css') }}?v=user-scrollbar-theme-1">
+</head>
+<body class="app-layout profile-page">
+
+  <!-- ========== VERTICAL SIDEBAR ========== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-box">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" fill="url(#logoGrad)"/>
+            <path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stop-color="#9b85ff"/>
+                <stop offset="100%" stop-color="#7C3AED"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">SkillFlow</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard_page') }}" class="nav-item">
+        <i class="fa-solid fa-home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('skill_categories_page') }}" class="nav-item">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Skill Categories</span>
+      </a>
+      <a href="{{ url_for('search_page') }}" class="nav-item">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>Search</span>
+      </a>
+      <a href="{{ url_for('requests_page') }}" class="nav-item">
+        <i class="fa-solid fa-handshake"></i>
+        <span>Requests</span>
+      </a>
+      <a href="{{ url_for('chat_page') }}" class="nav-item">
+        <i class="fa-regular fa-message"></i>
+        <span>Chat</span>
+      </a>
+      <a href="{{ url_for('notifications_page') }}" class="nav-item">
+        <i class="fa-solid fa-bell"></i>
+        <span>Notifications</span>
+        {% if user_nav_unread_count %}<span class="nav-mini-badge">{{ user_nav_unread_count }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('reviews_page') }}" class="nav-item">
+        <i class="fa-solid fa-star"></i>
+        <span>Reviews</span>
+      </a>
+      <a href="{{ url_for('daily_activity_page') }}" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Daily Activity</span>
+      </a>
+      <a href="{{ url_for('profile_page') }}" class="nav-item active">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('logout') }}" class="nav-item logout-item">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+    <header class="glass-panel top-header sf-dashboard-header">
+      <div class="header-left dashboard-header-title-block">
+        <h1>Profile</h1>
+        <p>Manage your personal information and skills</p>
+      </div>
+      <a class="header-profile-card dashboard-header-profile-block" href="{{ url_for('profile_page') }}">
+        <img src="{{ user.avatar_url }}" alt="{{ user.username }} avatar">
+        <div>
+          <span>Welcome,</span>
+          <strong>{{ user.username }}</strong>
+        </div>
+      </a>
+    </header>
+
+    <div class="profile-container">
+      {% set current_avatar = user.avatar_url or default_avatar %}
+      <!-- Avatar Selection Section -->
+      <section class="glass-panel profile-picture-section">
+        <div class="profile-section-heading">
+          <div>
+            <h2 class="section-title">Profile Avatar</h2>
+            <p>Choose a clean illustrated avatar that matches SkillFlow.</p>
+          </div>
+          <button type="button" class="profile-settings-trigger" id="btnOpenSettingsModal" aria-label="Open profile settings">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+        <div class="profile-avatar-container">
+            <div class="profile-avatar-wrapper">
+                {% if current_avatar %}
+                  <img id="currentAvatarDisplay" src="{{ current_avatar }}" alt="Profile Avatar" class="profile-avatar-img">
+                {% else %}
+                  <div id="currentAvatarDisplay" class="profile-avatar-empty">Add avatars</div>
+                {% endif %}
+            </div>
+            <div class="profile-avatar-actions">
+              <span class="profile-username-display">@{{ user.username }}</span>
+              <span class="profile-username-display"><i class="fa-solid fa-bolt"></i> {{ user.xp_points or 0 }} XP</span>
+              <span class="profile-username-display"><i class="fa-solid fa-fire"></i> {{ user.current_streak or 0 }} Day Streak</span>
+              {% if user.is_premium and user.premium_expiry_date %}
+              <span class="profile-username-display"><i class="fa-solid fa-crown"></i> Premium Active</span>
+              {% endif %}
+              <button type="button" class="btn-primary" id="btnOpenAvatarModal"><i class="fa-solid fa-user-astronaut"></i> Change Avatar</button>
+              <span class="profile-save-status" id="avatarSaveStatus" hidden><i class="fa-solid fa-check"></i> Saved</span>
+            </div>
+        </div>
+        <input type="hidden" id="selectedAvatarUrl" value="{{ current_avatar }}">
+      </section>
+
+      <section class="glass-panel profile-achievement-section">
+        <div class="profile-card-header">
+          <h2 class="section-title">Achievement Badges</h2>
+        </div>
+        <div class="profile-badge-list">
+          {% for badge in badges %}
+          <span><i class="{{ badge.icon }}"></i> {{ badge.badge_name }}</span>
+          {% else %}
+          <p>No badges earned yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Avatar Selection Modal -->
+      <div id="avatarModal" class="profile-modal-overlay">
+          <div class="glass-panel profile-modal-content">
+              <div class="profile-modal-header">
+                  <h3 class="profile-modal-title">Select Avatar</h3>
+                  <button type="button" id="btnCloseAvatarModal" class="profile-modal-close">&times;</button>
+              </div>
+              <div class="avatar-modal-layout">
+                <div class="avatar-picker-column">
+                  <h4 class="avatar-subtitle">Pre-made avatars</h4>
+                  <div class="profile-modal-grid">
+                    {% if avatar_presets %}
+                      {% for avatar in avatar_presets %}
+                        <button type="button"
+                          class="profile-avatar-option {% if current_avatar == avatar.url %}selected{% endif %}"
+                          data-url="{{ avatar.url }}"
+                          aria-label="Select {{ avatar.name }} avatar">
+                          <img src="{{ avatar.url }}" alt="{{ avatar.name }} Avatar" loading="lazy">
+                          <span>{{ avatar.name }}</span>
+                        </button>
+                      {% endfor %}
+                    {% else %}
+                      <div class="avatar-empty-state">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>No avatar images found in <b>static/avatar/</b></p>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="profile-modal-footer">
+                <button type="button" class="btn-primary profile-modal-btn" id="btnConfirmAvatar">Confirm Selection</button>
+              </div>
+          </div>
+      </div>
+
+      <!-- Profile Settings Modal -->
+      <div id="profileSettingsModal" class="profile-modal-overlay">
+          <div class="glass-panel profile-modal-content profile-settings-modal">
+              <div class="profile-modal-header">
+                  <h3 class="profile-modal-title">Profile Settings</h3>
+                  <button type="button" id="btnCloseSettingsModal" class="profile-modal-close">&times;</button>
+              </div>
+              <form id="profileSettingsForm" class="profile-settings-form">
+                <section class="settings-modal-section">
+                  <div class="settings-modal-section-title">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <div>
+                      <h4>Privacy Settings</h4>
+                      <p>Control what other SkillFlow users can see.</p>
+                    </div>
+                  </div>
+                  <label class="settings-field">
+                    <span>Show contact info</span>
+                    <select name="contact_info_visibility" id="contactInfoVisibility">
+                      <option value="public">Public</option>
+                      <option value="matched">Matched Users Only</option>
+                      <option value="hidden">Hidden</option>
+                    </select>
+                  </label>
+                  <label class="settings-toggle">
+                    <span>Show demo video publicly</span>
+                    <input type="checkbox" name="show_demo_video_publicly" id="showDemoVideoPublicly">
+                  </label>
+                  <label class="settings-toggle">
+                    <span>Show location publicly</span>
+                    <input type="checkbox" name="show_location_publicly" id="showLocationPublicly">
+                  </label>
+                </section>
+
+                <section class="settings-modal-section">
+                  <div class="settings-modal-section-title">
+                    <i class="fa-solid fa-bell"></i>
+                    <div>
+                      <h4>Notification Settings</h4>
+                      <p>Choose which profile alerts should stay active.</p>
+                    </div>
+                  </div>
+                  <label class="settings-toggle">
+                    <span>Request notifications</span>
+                    <input type="checkbox" name="request_notifications" id="requestNotifications">
+                  </label>
+                  <label class="settings-toggle">
+                    <span>Chat notifications</span>
+                    <input type="checkbox" name="chat_notifications" id="chatNotifications">
+                  </label>
+                  <label class="settings-toggle">
+                    <span>Review notifications</span>
+                    <input type="checkbox" name="review_notifications" id="reviewNotifications">
+                  </label>
+                  <label class="settings-toggle">
+                    <span>Payment/unlock notifications</span>
+                    <input type="checkbox" name="payment_notifications" id="paymentNotifications">
+                  </label>
+                </section>
+
+                <section class="settings-modal-section">
+                  <div class="settings-modal-section-title">
+                    <i class="fa-solid fa-comments"></i>
+                    <div>
+                      <h4>Chat Preferences</h4>
+                      <p>Fine tune how matched chats behave.</p>
+                    </div>
+                  </div>
+                  <label class="settings-toggle">
+                    <span>Allow matched users to message me</span>
+                    <input type="checkbox" name="allow_matched_messages" id="allowMatchedMessages">
+                  </label>
+                  <label class="settings-toggle">
+                    <span>Auto-scroll messages</span>
+                    <input type="checkbox" name="auto_scroll_messages" id="autoScrollMessages">
+                  </label>
+                  <div class="settings-muted-note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Blocked users are managed from active chat/report controls.
+                  </div>
+                </section>
+
+                <section class="settings-modal-section settings-danger-zone">
+                  <div class="settings-modal-section-title">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                      <h4>Danger Zone</h4>
+                      <p>These actions require confirmation.</p>
+                    </div>
+                  </div>
+                  <div class="settings-danger-actions">
+                    <button type="button" class="btn-secondary" id="btnDeactivateAccount">Deactivate Account</button>
+                    <button type="button" class="btn-danger" id="btnSettingsDeleteAccount">Delete Account</button>
+                  </div>
+                </section>
+
+                <div class="profile-modal-footer">
+                  <button type="submit" class="btn-primary profile-modal-btn" id="btnSaveProfileSettings">
+                    <i class="fa-solid fa-check"></i> Save Settings
+                  </button>
+                </div>
+              </form>
+          </div>
+      </div>
+
+      <!-- Basic Information Section -->
+      <section class="glass-panel profile-basic-section profile-editable-section" data-section="basic">
+        <div class="profile-card-header">
+          <h2 class="section-title">Basic Information</h2>
+          <div class="profile-card-actions">
+            <span class="profile-save-status" data-save-status hidden><i class="fa-solid fa-check"></i> Saved</span>
+            <button type="button" class="btn-secondary profile-edit-btn" data-edit-section="basic"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
+          </div>
+        </div>
+        <form id="profileForm" class="profile-form">
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" value="{{ user.full_name or '' }}">
+          </div>
+
+          <div class="form-group">
+            <label for="usernameInput">Username</label>
+            <input type="text" id="usernameInput" name="username" placeholder="Choose a username" value="{{ user.username or '' }}" minlength="3" maxlength="25" pattern="[A-Za-z0-9_]+">
+            <small>Letters, numbers, and underscores only</small>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ user.email or '' }}" disabled data-always-disabled="true">
+            <small>Email cannot be changed</small>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="Your city or region" value="{{ user.location or '' }}">
+          </div>
+
+          <button type="submit" class="btn-primary profile-save-btn" hidden>Save Changes</button>
+        </form>
+      </section>
+
+      <!-- Skills Section -->
+      <section class="glass-panel profile-editable-section" data-section="skills">
+        <div class="profile-card-header">
+          <h2 class="section-title">Skills & Expertise</h2>
+          <div class="profile-card-actions">
+            <span class="profile-save-status" data-save-status hidden><i class="fa-solid fa-check"></i> Saved</span>
+            <button type="button" class="btn-secondary profile-edit-btn" data-edit-section="skills"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
+          </div>
+        </div>
+        <form id="skillsForm" class="profile-form">
+          <div class="form-group">
+            <label for="skillsOffered">Skills I Can Teach</label>
+            <textarea id="skillsOffered" name="skillsOffered" placeholder="E.g., Web Development, Python, UI Design" rows="4">{{ user.skills_offered or '' }}</textarea>
+            <small>Separate multiple skills with commas</small>
+          </div>
+
+          <div class="form-group">
+            <label for="skillsWanted">Skills I Want to Learn</label>
+            <textarea id="skillsWanted" name="skillsWanted" placeholder="E.g., Digital Marketing, Photography, Spanish" rows="4">{{ user.skills_wanted or '' }}</textarea>
+            <small>Separate multiple skills with commas</small>
+          </div>
+
+          <button type="submit" class="btn-primary profile-save-btn" hidden>Save Changes</button>
+        </form>
+      </section>
+
+      <!-- Bio & Media Section -->
+      <section class="glass-panel profile-editable-section" data-section="about">
+        <div class="profile-card-header">
+          <h2 class="section-title">About You & Demo</h2>
+          <div class="profile-card-actions">
+            <span class="profile-save-status" data-save-status hidden><i class="fa-solid fa-check"></i> Saved</span>
+            <button type="button" class="btn-secondary profile-edit-btn" data-edit-section="about"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
+          </div>
+        </div>
+        <form id="bioForm" class="profile-form">
+          <div class="form-group">
+            <label for="bio">Bio / Description</label>
+            <textarea id="bio" name="bio" placeholder="Tell others about yourself, your experience, and interests..." rows="5">{{ user.bio or '' }}</textarea>
+            <small>Maximum 500 characters</small>
+          </div>
+
+          <div class="form-group">
+            <label for="video_url">Demo/Tutorial Video Link</label>
+            <input type="url" id="video_url" name="video_url" placeholder="https://youtube.com/... or https://drive.google.com/..." value="{{ user.video_url or '' }}">
+            <small>Only YouTube or Google Drive links are allowed. This will be publicly visible.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="video_description">Demo Video Description</label>
+            <textarea id="video_description" name="video_description" placeholder="Describe what your demo video teaches..." rows="4">{{ user.video_description or '' }}</textarea>
+            <small>This description will be publicly visible on your profile.</small>
+          </div>
+
+          <button type="submit" class="btn-primary profile-save-btn" hidden>Save Changes</button>
+        </form>
+      </section>
+
+      <!-- Contact & Social Links Section -->
+      <section class="glass-panel profile-editable-section" data-section="contact">
+        <div class="profile-card-header">
+          <h2 class="section-title">Contact Details (Private)</h2>
+          <div class="profile-card-actions">
+            <span class="profile-save-status" data-save-status hidden><i class="fa-solid fa-check"></i> Saved</span>
+            <button type="button" class="btn-secondary profile-edit-btn" data-edit-section="contact"><i class="fa-regular fa-pen-to-square"></i> Edit</button>
+          </div>
+        </div>
+        <form id="contactForm" class="profile-form">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" value="{{ user.phone or '' }}">
+          </div>
+
+          <div class="form-group">
+            <label for="contact_number">Alternative Contact Number</label>
+            <input type="tel" id="contact_number" name="contact_number" placeholder="+1 (555) 111-2222" value="{{ user.contact_number or '' }}">
+          </div>
+
+          <div class="form-group">
+            <label for="instagram_id">Instagram ID</label>
+            <input type="text" id="instagram_id" name="instagram_id" placeholder="@yourusername" value="{{ user.instagram_id or '' }}">
+          </div>
+
+          <div class="checkbox-group mt-1-5">
+            <label class="checkbox-item">
+              <input type="checkbox" id="contact_sharing" name="contact_sharing" {% if user.contact_sharing %}checked{% endif %}>
+              <span><b>Allow sharing my contact details</b> (phone & email) with users who have paid for a skill swap with me.</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary profile-save-btn" hidden>Save Changes</button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/skillflow_ui.js') }}?v=csrf-1"></script>
+  <script src="{{ url_for('static', filename='js/profile_script.js') }}?v=profile-settings-modal-1"></script>
+</body>
+</html>

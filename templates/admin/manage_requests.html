@@ -1,0 +1,96 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Requests{% endblock %}
+{% block content %}
+<div class="requests-admin-page">
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">Exchange Flow</span>
+    <h1>Requests</h1>
+    <p class="admin-muted">Monitor sender, receiver, skill match status, request status, payment, and timing.</p>
+  </div>
+  <div class="admin-page-count">
+    <i class="fa-solid fa-handshake"></i>
+    <span>{{ requests_list|length }} requests</span>
+  </div>
+</section>
+
+<section class="admin-toolbar admin-section">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search by participant, skill, status, payment, or date.</span>
+  </div>
+  <div class="admin-filter-chips">
+    <button class="admin-filter-chip active" type="button" data-admin-filter="request-status" data-filter-value="all"><i class="fa-solid fa-layer-group"></i> All</button>
+    <button class="admin-filter-chip" type="button" data-admin-filter="request-status" data-filter-value="accepted"><i class="fa-solid fa-circle-check"></i> Accepted</button>
+    <button class="admin-filter-chip warn" type="button" data-admin-filter="request-status" data-filter-value="pending"><i class="fa-solid fa-clock"></i> Pending</button>
+    <button class="admin-filter-chip danger" type="button" data-admin-filter="request-status" data-filter-value="rejected"><i class="fa-solid fa-xmark"></i> Rejected</button>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section admin-data-panel">
+  <table class="admin-table request-admin-table modern-admin-table">
+    <thead>
+      <tr>
+        <th>Request</th>
+        <th>Sender</th>
+        <th>Receiver</th>
+        <th>Skill Match</th>
+        <th>Request Status</th>
+        <th>Payment</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in requests_list %}
+      {% set has_match = (item.sender_teaches or item.skill_offered) and (item.sender_learns or item.skill_requested) %}
+      {% set request_filter_status = (item.status or 'pending')|lower %}
+      <tr data-search-row
+          data-request-status="{{ request_filter_status }}"
+          data-search-text="#{{ item.id }} {{ item.sender_name }} {{ item.receiver_name }} {{ item.sender_teaches }} {{ item.skill_offered }} {{ item.sender_learns }} {{ item.skill_requested }} {{ item.receiver_teaches }} {{ item.receiver_learns }} {{ item.status }} {{ item.payment_status }} {{ item.created_at }} {{ item.payment_date }}">
+        <td><span class="admin-id-pill">#{{ item.id }}</span></td>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ item.sender_name }}</strong>
+            <span class="admin-muted">Teaches: {{ item.sender_teaches or item.skill_offered or '-' }}</span>
+            <span class="admin-muted">Learns: {{ item.sender_learns or item.skill_requested or '-' }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ item.receiver_name }}</strong>
+            <span class="admin-muted">Teaches: {{ item.receiver_teaches or '-' }}</span>
+            <span class="admin-muted">Learns: {{ item.receiver_learns or '-' }}</span>
+          </div>
+        </td>
+        <td>
+          {% if has_match %}
+          <span class="status-pill status-active"><i class="fa-solid fa-link"></i> Matched</span>
+          {% else %}
+          <span class="status-pill status-under_review"><i class="fa-solid fa-magnifying-glass-chart"></i> Review</span>
+          {% endif %}
+        </td>
+        <td><span class="status-pill status-{{ item.status }}"><i class="fa-solid fa-circle-dot"></i> {{ item.status }}</span></td>
+        <td><span class="status-pill status-{{ item.payment_status }}"><i class="fa-solid fa-credit-card"></i> {{ item.payment_status }}</span></td>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ item.created_at or '-' }}</strong>
+            {% if item.payment_date %}<span class="admin-muted">Paid {{ item.payment_date }}</span>{% endif %}
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">
+          <div class="admin-empty-state">
+            <i class="fa-solid fa-handshake-slash"></i>
+            <strong>No requests found.</strong>
+            <span>Skill exchange requests will appear here when users connect.</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

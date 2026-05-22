@@ -1,0 +1,158 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="users-admin-page">
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">Admin Panel</span>
+    <h1>Users</h1>
+    <p class="admin-muted">Review SkillFlow accounts, verification, access state, and moderation actions.</p>
+  </div>
+  <div class="admin-page-count">
+    <i class="fa-solid fa-users"></i>
+    <span>{{ users|length }} users</span>
+  </div>
+</section>
+
+<section class="admin-toolbar admin-section users-admin-toolbar">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Use the top search to filter users by name, email, location, skill, or status.</span>
+  </div>
+  <div class="admin-filter-chips">
+    <button class="admin-filter-chip active" type="button" data-admin-filter="user-status" data-filter-value="all"><i class="fa-solid fa-list"></i> All</button>
+    <button class="admin-filter-chip" type="button" data-admin-filter="user-status" data-filter-value="active"><i class="fa-solid fa-circle-check"></i> Active</button>
+    <button class="admin-filter-chip warn" type="button" data-admin-filter="user-status" data-filter-value="blocked"><i class="fa-solid fa-ban"></i> Blocked</button>
+    <button class="admin-button admin-export-btn" type="button" data-export-users><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section admin-data-panel">
+  <table class="admin-table users-admin-table modern-admin-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Contact</th>
+        <th>Location</th>
+        <th>Skills</th>
+        <th>Verification</th>
+        <th>Status</th>
+        <th>Monitoring</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      {% set user_status = 'deleted' if user.is_deleted else ('blocked' if user.is_blocked else 'active') %}
+      {% set user_skills = 'Teaches: ' ~ (user.skills_offered or 'No offered skills') ~ ' | Learns: ' ~ (user.skills_wanted or 'No wanted skills') %}
+      <tr data-search-row
+          data-user-status="{{ user_status }}"
+          data-export-full-name="{{ user.full_name or user.username }}"
+          data-export-username="{{ user.username }}"
+          data-export-email="{{ user.email }}"
+          data-export-location="{{ user.location or '-' }}"
+          data-export-skills="{{ user_skills }}"
+          data-export-verification="{{ 'Verified' if user.is_verified else 'Unverified' }}"
+          data-export-status="{{ user_status|title }}"
+          data-export-plan="{{ 'Premium' if user.is_premium else 'Free' }}"
+          data-export-email-notifications="{{ 'On' if user.email_notifications else 'Off' }}"
+          data-export-match-notifications="{{ 'On' if user.match_notifications else 'Off' }}"
+          data-export-visibility="{{ 'Public' if user.profile_visibility else 'Private' }}"
+          data-export-created-date="{{ user.created_at or '-' }}">
+        <td>
+          <div class="admin-user-cell admin-user-cell-strong">
+            <img class="admin-user-avatar" src="{{ user.avatar_url }}" alt="{{ user.username }} avatar">
+            <div>
+              <strong>{{ user.full_name or user.username }}</strong>
+              <small>@{{ user.username }} - #{{ user.id }}</small>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ user.email }}</strong>
+            <span class="admin-muted"><i class="fa-regular fa-calendar"></i> {{ user.created_at or 'Joined date unavailable' }}</span>
+          </div>
+        </td>
+        <td><span class="admin-location-cell"><i class="fa-solid fa-location-dot"></i> {{ user.location or '-' }}</span></td>
+        <td>
+          <div class="admin-skill-stack">
+            <span><i class="fa-solid fa-chalkboard-user"></i> {{ user.skills_offered or 'No offered skills' }}</span>
+            <span><i class="fa-solid fa-book-open-reader"></i> {{ user.skills_wanted or 'No wanted skills' }}</span>
+          </div>
+        </td>
+        <td>
+          {% if user.is_verified %}
+          <span class="status-pill status-verified"><i class="fa-solid fa-envelope-circle-check"></i> Verified</span>
+          {% else %}
+          <span class="status-pill status-unverified"><i class="fa-solid fa-envelope"></i> Unverified</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if user.is_admin %}
+          <span class="status-pill status-active"><i class="fa-solid fa-shield-halved"></i> Admin</span>
+          {% elif user.is_deleted %}
+          <span class="status-pill status-deleted"><i class="fa-solid fa-trash"></i> Deleted</span>
+          {% elif user.is_blocked %}
+          <span class="status-pill status-blocked"><i class="fa-solid fa-ban"></i> Blocked</span>
+          {% elif user.latest_action_type == 'logout' %}
+          <span class="status-pill status-logged-out"><i class="fa-solid fa-right-from-bracket"></i> Logged out</span>
+          {% else %}
+          <span class="status-pill status-active"><i class="fa-solid fa-circle-check"></i> Active</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="admin-skill-stack">
+            <span><i class="fa-solid fa-crown"></i> {% if user.is_premium %}Premium{% else %}Free{% endif %}</span>
+            <span><i class="fa-solid fa-bell"></i> Email {{ 'On' if user.email_notifications else 'Off' }} / Match {{ 'On' if user.match_notifications else 'Off' }}</span>
+            <span><i class="fa-solid fa-eye"></i> {{ 'Public' if user.profile_visibility else 'Private' }}</span>
+            {% if user.is_blocked and user.block_reason %}
+            <span><i class="fa-solid fa-message"></i> Reason: {{ user.block_reason }}</span>
+            {% endif %}
+            {% if user.latest_action_type == 'username_change' %}
+            <span><i class="fa-solid fa-user-pen"></i> {{ user.latest_account_status }}</span>
+            {% endif %}
+          </div>
+        </td>
+        <td>
+          {% if not user.is_admin %}
+          <div class="admin-actions">
+            {% if user.is_blocked %}
+            <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='unblock') }}">
+              <button class="admin-action-btn" type="submit"><i class="fa-solid fa-unlock"></i> Unblock</button>
+            </form>
+            {% else %}
+            <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='block') }}">
+              <button class="admin-action-btn admin-action-warn" data-reason-required="block" type="submit"><i class="fa-solid fa-ban"></i> Block</button>
+            </form>
+            {% endif %}
+            <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='delete') }}">
+              <button class="admin-action-btn admin-action-danger" data-reason-required="delete" type="submit"><i class="fa-solid fa-trash"></i> Delete</button>
+            </form>
+            {% if not user.is_verified %}
+            <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='verify-email') }}">
+              <button class="admin-action-btn" type="submit"><i class="fa-solid fa-envelope-circle-check"></i> Verify</button>
+            </form>
+            {% endif %}
+          </div>
+          {% else %}
+          <span class="admin-muted">Protected</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8">
+          <div class="admin-empty-state">
+            <i class="fa-solid fa-user-slash"></i>
+            <strong>No users found.</strong>
+            <span>New SkillFlow accounts will appear here.</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

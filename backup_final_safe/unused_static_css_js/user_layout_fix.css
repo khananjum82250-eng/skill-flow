@@ -1,0 +1,881 @@
+/* Final SkillFlow user layout pass: one page scroll, fixed sidebar, contained cards. */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
+body.app-layout,
+body.app-layout * {
+  box-sizing: border-box;
+}
+
+body.app-layout {
+  --sidebar-width: 286px;
+  display: grid !important;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body.app-layout > .sidebar {
+  position: fixed !important;
+  inset: 0 auto 0 0 !important;
+  width: var(--sidebar-width) !important;
+  height: 100vh !important;
+  overflow-x: hidden !important;
+  z-index: 100;
+}
+
+body.app-layout > .main-content {
+  grid-column: 2 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  padding: 24px 28px 42px !important;
+}
+
+body.app-layout > .main-content,
+body.app-layout > .main-content > *,
+.glass-panel,
+.content-header,
+.top-header,
+.dashboard-content,
+.dashboard-grid,
+.profile-container,
+.requests-content,
+.search-results-panel,
+.chat-shell {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.custom-page-scrollbar,
+.custom-request-scrollbar,
+.chat-topbar-actions,
+.chat-count,
+.chat-unread-badge {
+  display: none !important;
+}
+
+.dashboard-page .top-header,
+.requests-page .top-header,
+.search-page .content-header,
+.profile-page .content-header,
+.chat-page .chat-topbar {
+  position: relative !important;
+  top: auto !important;
+  align-items: center !important;
+  gap: 16px;
+  padding: 20px !important;
+  overflow: visible;
+}
+
+.dashboard-page .top-header {
+  padding: 22px 28px !important;
+}
+
+.dashboard-page .top-header .header-left {
+  padding-left: 6px;
+}
+
+.dashboard-page .top-header .header-right {
+  padding-right: 6px;
+  transform: translateX(-4px);
+}
+
+.header-left,
+.header-right,
+.premium-header-title,
+.chat-topbar-profile,
+.profile-menu-wrap {
+  min-width: 0;
+}
+
+.dashboard-page .top-header .header-right {
+  max-width: 100%;
+  flex-wrap: nowrap;
+  align-self: center;
+}
+
+.dashboard-page .top-header .profile-info {
+  max-width: 230px;
+  min-height: 50px;
+  padding: 4px 10px 4px 4px;
+}
+
+.dashboard-page .top-header .profile-name {
+  max-width: 108px;
+}
+
+.dashboard-search {
+  min-width: 210px;
+  max-width: 340px;
+}
+
+.dashboard-page .welcome-section {
+  overflow: hidden;
+  align-items: center;
+}
+
+.hero-copy,
+.hero-visual {
+  min-width: 0;
+}
+
+.hero-visual {
+  width: 100%;
+}
+
+.hero-illustration-card {
+  width: min(100%, 320px);
+  max-height: 280px;
+}
+
+.hero-mini-stat.stat-top {
+  top: 16px;
+  right: 12px;
+}
+
+.hero-mini-stat.stat-bottom {
+  bottom: 16px;
+  left: 12px;
+}
+
+.hero-actions .btn-primary,
+.hero-actions .btn-secondary {
+  flex: 0 1 auto;
+  min-width: 190px;
+  padding-inline: 18px;
+}
+
+.dashboard-page .skills-overview {
+  align-items: stretch !important;
+}
+
+.dashboard-page .skills-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 170px;
+  text-align: left;
+}
+
+.dashboard-page .skills-list {
+  justify-content: flex-start;
+}
+
+.dashboard-page .skills-divider {
+  padding: 0 !important;
+  margin: auto 0;
+  flex: 0 0 44px;
+}
+
+.recommended-card-grid {
+  align-items: stretch;
+}
+
+.dashboard-page .recommended-user-card {
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.recommended-card-top {
+  align-items: flex-start;
+}
+
+.dashboard-page .r-user-info {
+  width: auto;
+  flex: 1 1 auto;
+}
+
+.dashboard-page .match-pill,
+.search-match-pill {
+  max-width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.dashboard-page .r-user-skills {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.dashboard-page .r-skill {
+  min-width: 0;
+}
+
+.dashboard-page .r-user-actions {
+  width: 100%;
+}
+
+.dashboard-page .btn-view-profile-dashboard,
+.dashboard-page .btn-send-request,
+.dashboard-page .request-state-badge {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 12px;
+}
+
+.activity-chart {
+  position: relative;
+  height: 140px;
+  display: block;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.10) 1px, transparent 1px);
+  background-size: 100% 34px, 52px 100%;
+}
+
+.activity-line-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.activity-line-fill {
+  fill: url(#activityLineFill);
+}
+
+.activity-line-stroke {
+  fill: none;
+  stroke: url(#activityLineStroke);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.activity-points circle {
+  fill: #fff;
+  stroke: #7c3aed;
+  stroke-width: 3;
+}
+
+.search-page .search-input-wrapper {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 6px 8px 6px 18px;
+}
+
+.search-page .search-icon {
+  position: static !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.search-page #searchInput {
+  height: 46px;
+  min-width: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.search-filter-button {
+  margin-right: 0;
+  display: grid;
+  place-items: center;
+}
+
+.filter-chip-row,
+.advanced-filter-grid {
+  gap: 10px 12px;
+}
+
+.filter-chip.active,
+.advanced-filter.active {
+  color: #5b21b6;
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.24);
+}
+
+.search-page .search-results {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: visible !important;
+}
+
+.search-user-card,
+.search-user-main,
+.search-card-headline,
+.search-user-top,
+.search-skill-grid,
+.search-request-actions {
+  min-width: 0;
+}
+
+.requests-page .requests-content {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding: 22px !important;
+}
+
+.request-status-tabs,
+.requests-page .nav-tabs-custom {
+  width: 100%;
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.request-status-tab,
+.requests-page .tab-link {
+  flex: 1 1 160px;
+  justify-content: center;
+  text-align: center;
+}
+
+.requests-page .tab-pane,
+.requests-page .tab-pane.active,
+.requests-page .request-list {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding-right: 0 !important;
+}
+
+.requests-page .req-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.requests-page .req-main,
+.requests-page .req-user,
+.requests-page .req-skills,
+.requests-page .req-actions {
+  min-width: 0;
+}
+
+.requests-page .req-card-match {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.requests-page .btn-view-profile,
+.requests-page .btn-outline-accept,
+.requests-page .btn-outline-reject,
+.requests-page .btn-outline-primary,
+.requests-page .btn-remove-match,
+.requests-page .badge-pending,
+.requests-page .badge-accepted,
+.requests-page .badge-rejected {
+  white-space: nowrap;
+}
+
+.chat-page .chat-shell {
+  height: auto !important;
+  min-height: min(720px, calc(100vh - 176px));
+  display: grid !important;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  overflow: hidden !important;
+}
+
+.chat-sidebar-panel,
+.chat-window-panel,
+.chat-window,
+.messages {
+  min-width: 0;
+}
+
+.chat-list-header,
+.chat-window-header {
+  min-height: 74px;
+  padding: 18px 22px;
+}
+
+.chat-list {
+  padding: 14px;
+}
+
+.chat-list-item {
+  grid-template-columns: 48px minmax(0, 1fr);
+  margin: 0 0 10px !important;
+}
+
+.chat-window-header {
+  flex-wrap: wrap;
+}
+
+.chat-user-summary {
+  flex: 1 1 240px;
+}
+
+.chat-input-area {
+  grid-template-columns: auto minmax(0, 1fr) 54px !important;
+  gap: 10px;
+  padding: 16px 22px 20px;
+}
+
+.chat-input-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-tool-button {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 14px;
+  color: #6d28d9;
+  background: #fff;
+  cursor: pointer;
+}
+
+.chat-input-area input {
+  width: 100%;
+}
+
+.app-layout .chat-send-button {
+  width: 54px !important;
+  min-width: 54px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #7c3aed, #2563eb) !important;
+}
+
+.profile-page .premium-btn {
+  min-width: 142px;
+}
+
+.profile-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(180px, auto);
+  align-items: center;
+  gap: 22px;
+  padding: 28px !important;
+  overflow: hidden;
+}
+
+.profile-hero-avatar {
+  width: 116px;
+  height: 116px;
+  border-radius: 28px;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow: 0 18px 36px rgba(30, 27, 75, 0.14);
+}
+
+.profile-stats-grid,
+.profile-skill-preview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.profile-skill-preview {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-chip-panel,
+.profile-stat-card,
+.profile-editable-section,
+.profile-picture-section {
+  min-width: 0;
+}
+
+.profile-page .profile-editable-section[data-section="skills"]:not(.is-editing) #skillsForm {
+  display: none;
+}
+
+.profile-page .profile-editable-section[data-section="skills"].is-editing .profile-skill-preview {
+  display: none;
+}
+
+.profile-page .premium-btn:hover,
+.profile-page .profile-edit-btn:hover {
+  transform: translateY(-2px);
+}
+
+body.app-layout.profile-view-page > .main-content {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 1180px) {
+  body.app-layout {
+    --sidebar-width: 252px;
+  }
+
+  .recommended-card-grid,
+  .search-page .search-results,
+  .profile-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .requests-page .req-card-match {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .dashboard-page .top-header,
+  .requests-page .top-header,
+  .search-page .content-header,
+  .profile-page .content-header,
+  .chat-page .chat-topbar {
+    flex-wrap: wrap;
+    align-items: stretch !important;
+  }
+
+  .dashboard-page .top-header .header-right {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding-right: 0;
+    transform: none;
+  }
+
+  .dashboard-search,
+  .premium-pill,
+  .profile-page .premium-btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .dashboard-page .welcome-section,
+  .chat-page .chat-shell,
+  .profile-hero,
+  .profile-skill-preview {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body.app-layout {
+    --sidebar-width: 0px;
+    display: block !important;
+  }
+
+  body.app-layout > .sidebar {
+    width: 260px !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.25s ease;
+  }
+
+  body.app-layout.dashboard-sidebar-open > .sidebar,
+  body.app-layout.user-sidebar-open > .sidebar,
+  body.app-layout > .sidebar.active {
+    transform: translateX(0) !important;
+  }
+
+  body.app-layout > .main-content {
+    grid-column: 1 !important;
+    padding: 18px 16px 34px !important;
+  }
+
+  .dashboard-page .skills-overview,
+  .search-skill-grid,
+  .search-request-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-page .skills-divider {
+    width: 100%;
+    margin: 0;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary,
+  .requests-page .btn-view-profile,
+  .requests-page .btn-outline-accept,
+  .requests-page .btn-outline-reject,
+  .requests-page .btn-outline-primary,
+  .requests-page .btn-remove-match,
+  .requests-page .badge-pending,
+  .requests-page .badge-accepted,
+  .requests-page .badge-rejected {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .chat-input-area {
+    grid-template-columns: 1fr 54px !important;
+  }
+
+  .chat-input-tools {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .premium-header-title,
+  .profile-card-header,
+  .profile-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .request-status-tab,
+  .requests-page .tab-link,
+  .profile-card-actions,
+  .profile-page .profile-edit-btn,
+  .profile-page .profile-save-btn,
+  .profile-menu-wrap,
+  .dashboard-page .top-header .profile-info {
+    width: 100%;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Requests page final scoped fixes */
+.requests-page .top-header {
+  padding: 22px 28px !important;
+  align-items: center !important;
+}
+
+.requests-page .top-header .header-left {
+  min-width: 0;
+  padding-left: 6px;
+}
+
+.requests-page .top-header .header-right {
+  min-width: 0;
+  padding-right: 6px;
+  transform: translateX(-4px);
+}
+
+.requests-page .top-header .profile-info {
+  max-width: 240px;
+  min-width: 0;
+}
+
+.requests-page .top-header .profile-name,
+.requests-page .top-header .profile-role {
+  max-width: 138px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.requests-page .req-card-match {
+  display: grid !important;
+  grid-template-columns: minmax(210px, 0.95fr) minmax(280px, 1.35fr) minmax(190px, auto) !important;
+  align-items: center !important;
+  gap: 20px;
+  width: 100%;
+  padding: 22px;
+}
+
+.requests-page .req-card-match .match-user {
+  width: 100%;
+}
+
+.requests-page .req-card-match .req-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+}
+
+.requests-page .req-card-match .req-skills {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.requests-page .req-card-match .req-skill-col,
+.requests-page .req-card-match .req-user-info {
+  min-width: 0;
+}
+
+.requests-page .req-card-match .req-tag {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.requests-page .req-card-match .match-arrows {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  border-radius: 12px;
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.09);
+}
+
+.requests-page .req-card-match .req-match-indicator {
+  min-width: 112px;
+  justify-content: flex-end;
+}
+
+.requests-page .req-card-match .match-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  min-width: 190px;
+  justify-items: stretch;
+}
+
+.requests-page .req-card-match .match-meta {
+  align-items: stretch;
+  text-align: left;
+  padding: 0 0 4px;
+}
+
+.requests-page .req-card-match .btn-view-profile,
+.requests-page .req-card-match .btn-outline-primary,
+.requests-page .req-card-match .btn-remove-match {
+  width: 100%;
+  min-height: 42px;
+  justify-content: center;
+  padding: 10px 14px;
+}
+
+@media (max-width: 1180px) {
+  .requests-page .req-card-match {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  .requests-page .req-card-match .req-skills {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .requests-page .req-card-match .req-match-indicator {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .requests-page .req-card-match .match-actions {
+    min-width: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .requests-page .req-card-match .match-meta {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .requests-page .top-header {
+    padding: 20px !important;
+  }
+
+  .requests-page .top-header .header-left,
+  .requests-page .top-header .header-right {
+    padding: 0;
+    transform: none;
+  }
+
+  .requests-page .top-header .profile-info {
+    max-width: 100%;
+  }
+
+  .requests-page .req-card-match .req-skills,
+  .requests-page .req-card-match .match-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .requests-page .req-card-match .match-arrows,
+  .requests-page .req-card-match .req-match-indicator {
+    justify-self: start;
+  }
+}
+
+/* Requests page final correction */
+.requests-page .top-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 24px 32px !important;
+  overflow: hidden;
+}
+
+.requests-page .top-header .header-left {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.requests-page .top-header .header-right {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding-right: 0;
+  margin-right: 4px;
+  transform: none;
+}
+
+.requests-page .top-header .profile-info {
+  max-width: 240px;
+}
+
+.requests-page .tab-pane {
+  display: none;
+}
+
+.requests-page .tab-pane.active {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+
+.requests-page .tab-pane.active .req-card {
+  opacity: 1;
+  visibility: visible;
+}
+
+.requests-page .req-card-match {
+  grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.4fr) minmax(180px, 0.8fr) !important;
+  overflow: hidden;
+}
+
+.requests-page .req-card-match .match-user,
+.requests-page .req-card-match .match-skills,
+.requests-page .req-card-match .match-actions {
+  min-width: 0;
+}
+
+.requests-page .req-card-match .req-user-info h4,
+.requests-page .req-card-match .req-username,
+.requests-page .req-card-match .req-role,
+.requests-page .req-card-match .req-loc {
+  max-width: 100%;
+}
+
+.requests-page .req-card-match .match-actions {
+  align-self: stretch;
+  align-content: center;
+}
+
+@media (max-width: 1180px) {
+  .requests-page .req-card-match {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .requests-page .top-header {
+    padding: 22px 20px !important;
+    align-items: flex-start !important;
+  }
+
+  .requests-page .top-header .header-right,
+  .requests-page .top-header .profile-info {
+    width: 100%;
+    max-width: 100%;
+  }
+}

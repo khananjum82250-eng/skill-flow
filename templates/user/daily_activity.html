@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Activity - SkillFlow</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=user-mobile-responsive-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skillflow_ui.css') }}?v=safe-dropdown-theme-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/engagement_pages.css') }}?v=daily-premium-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user_scrollbar.css') }}?v=user-scrollbar-theme-1">
+</head>
+<body class="app-layout engagement-page daily-activity-page">
+  <aside class="sidebar">
+    <div class="sidebar-header"><div class="logo-box"><div class="logo-icon"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" fill="url(#logoGrad)"/><path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/><defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#9b85ff"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs></svg></div><span class="logo-text">SkillFlow</span></div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard_page') }}" class="nav-item"><i class="fa-solid fa-home"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('skill_categories_page') }}" class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Skill Categories</span></a>
+      <a href="{{ url_for('search_page') }}" class="nav-item"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></a>
+      <a href="{{ url_for('requests_page') }}" class="nav-item"><i class="fa-solid fa-handshake"></i><span>Requests</span></a>
+      <a href="{{ url_for('chat_page') }}" class="nav-item"><i class="fa-regular fa-message"></i><span>Chat</span></a>
+      <a href="{{ url_for('notifications_page') }}" class="nav-item"><i class="fa-solid fa-bell"></i><span>Notifications</span>{% if user_nav_unread_count %}<span class="nav-mini-badge">{{ user_nav_unread_count }}</span>{% endif %}</a>
+      <a href="{{ url_for('reviews_page') }}" class="nav-item"><i class="fa-solid fa-star"></i><span>Reviews</span></a>
+      <a href="{{ url_for('daily_activity_page') }}" class="nav-item active"><i class="fa-solid fa-chart-line"></i><span>Daily Activity</span></a>
+      <a href="{{ url_for('profile_page') }}" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    </nav>
+    <div class="sidebar-footer"><a href="{{ url_for('logout') }}" class="nav-item logout-item"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="glass-panel top-header sf-dashboard-header engagement-header">
+      <div class="header-left dashboard-header-title-block">
+        <h1>Daily Activity</h1>
+        <p>Track XP, rewards, and shared progress with connected learning partners.</p>
+      </div>
+      <a class="header-profile-card dashboard-header-profile-block" href="{{ url_for('profile_page') }}">
+        <img src="{{ user.avatar_url }}" alt="{{ user.username }} avatar">
+        <div>
+          <span>Welcome,</span>
+          <strong>{{ user.username }}</strong>
+        </div>
+      </a>
+    </header>
+
+    <section class="daily-stats-grid">
+      <article class="daily-stat-card streak-card">
+        <span class="daily-stat-icon"><i class="fa-solid fa-fire"></i></span>
+        <div>
+          <strong>{{ user.current_streak or 0 }}</strong>
+          <span>Shared Streak</span>
+          <small>Grows only after two-way partner activity</small>
+        </div>
+      </article>
+      <article class="daily-stat-card xp-card">
+        <span class="daily-stat-icon"><i class="fa-solid fa-bolt"></i></span>
+        <div>
+          <strong>{{ user.xp_points or 0 }}</strong>
+          <span>Total XP</span>
+          <small>Earned from meaningful learning actions</small>
+        </div>
+      </article>
+      <article class="daily-stat-card best-card">
+        <span class="daily-stat-icon"><i class="fa-solid fa-trophy"></i></span>
+        <div>
+          <strong>{{ user.longest_streak or 0 }}</strong>
+          <span>Best Partner Streak</span>
+          <small>Your strongest shared consistency record</small>
+        </div>
+      </article>
+    </section>
+
+    <section class="glass-panel daily-reward-hero">
+      <div class="daily-reward-left">
+        <span class="daily-reward-icon"><i class="fa-solid fa-gift"></i></span>
+        <div>
+          <h2>Daily Reward</h2>
+          <p>Claim once every 24 hours and build your XP progress.</p>
+          <div class="daily-reward-progress"><span style="width: {{ 100 if not engagement.can_claim_reward else 45 }}%"></span></div>
+        </div>
+      </div>
+      <button class="engagement-action daily-claim-button" id="btnClaimReward" {% if not engagement.can_claim_reward %}disabled{% endif %}>{{ 'Claim Reward' if engagement.can_claim_reward else 'Claimed' }}</button>
+    </section>
+
+    <div class="daily-grid-row">
+      <section class="glass-panel engagement-list daily-section-card achievements-card">
+        <h2 class="section-title">Achievements</h2>
+        <div class="badge-grid">
+          {% for badge in engagement.badges %}
+          <span class="daily-badge-chip"><i class="{{ badge.icon }}"></i> {{ badge.badge_name }}</span>
+          {% else %}
+          <div class="daily-empty-state compact">
+            <i class="fa-solid fa-medal"></i>
+            <p>Earn badges from matches, chats, streaks, and premium.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      <section class="glass-panel engagement-list daily-section-card recommended-card">
+        <h2 class="section-title">Learning Partners</h2>
+        <div class="daily-user-list">
+        {% for item in engagement.daily_users %}
+        <article class="daily-user-card">
+          <img src="{{ item.avatar_url }}" alt="{{ item.username }} avatar">
+          <div class="daily-user-info">
+            <strong>{{ item.full_name or item.username }}</strong>
+            <span>{{ item.status_label }}</span>
+            <div class="daily-skill-tags">
+              <small>Teach: {{ item.skill_offered or item.skills_offered or 'Skill partner' }}</small>
+              <small>Learn: {{ item.skill_requested or item.skills_wanted or 'Open to learn' }}</small>
+            </div>
+          </div>
+          <a href="{{ url_for('public_profile_page', user_id=item.id) }}">View</a>
+        </article>
+        {% else %}
+        <div class="daily-empty-state compact">
+          <i class="fa-solid fa-users"></i>
+          <p>Accepted learning partners will appear here.</p>
+        </div>
+        {% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <div class="daily-grid-row">
+      <section class="glass-panel engagement-list daily-section-card leaderboard-card">
+        <h2 class="section-title">Active Skill Streaks</h2>
+        {% for leader in engagement.leaderboard %}
+        <div class="leader-row premium-leader-row rank-{{ loop.index }}">
+          <span class="leader-rank">#{{ loop.index }}</span>
+          <img src="{{ leader.avatar_url }}" alt="{{ leader.username }} avatar">
+          <div class="leader-main">
+          <span>{{ leader.full_name or leader.username }}</span>
+          <div class="leader-progress"><span style="width: {{ [leader.xp_points or 0, 300]|min / 3 }}%"></span></div>
+        </div>
+          <strong>{{ leader.current_streak }} day</strong>
+        </div>
+        {% else %}
+        <div class="daily-empty-state compact">
+          <i class="fa-solid fa-ranking-star"></i>
+          <p>No connected partner streaks yet.</p>
+        </div>
+        {% endfor %}
+      </section>
+      <section class="glass-panel engagement-list daily-section-card activity-section-card">
+        <h2 class="section-title">Friends Activity</h2>
+        <div class="activity-filter-tabs" aria-label="Activity filters">
+          <button class="activity-filter active" type="button" data-activity-filter="all">All Activities</button>
+          <button class="activity-filter" type="button" data-activity-filter="request">Requests</button>
+          <button class="activity-filter" type="button" data-activity-filter="chat">Chats</button>
+          <button class="activity-filter" type="button" data-activity-filter="review">Reviews</button>
+          <button class="activity-filter" type="button" data-activity-filter="payment">Payments</button>
+        </div>
+        <div class="activity-feed">
+        {% for item in engagement.activity %}
+        {% set activity_type = item.activity_type or 'activity' %}
+        {% set activity_key = 'request' if 'request' in activity_type else 'chat' if 'chat' in activity_type else 'review' if 'review' in activity_type else 'payment' if 'payment' in activity_type or 'premium' in activity_type else 'profile' if 'profile' in activity_type else 'unlock' if 'unlock' in activity_type else 'activity' %}
+        {% set icon_class = 'fa-solid fa-arrows-rotate' if activity_key == 'request' else 'fa-regular fa-message' if activity_key == 'chat' else 'fa-solid fa-star' if activity_key == 'review' else 'fa-solid fa-wallet' if activity_key == 'payment' else 'fa-solid fa-user' if activity_key == 'profile' else 'fa-solid fa-lock-open' if activity_key == 'unlock' else 'fa-solid fa-bolt' %}
+        <article class="activity-card" data-activity-type="{{ activity_key }}">
+          <span class="activity-card-icon activity-icon-{{ activity_key }}"><i class="{{ icon_class }}"></i></span>
+          <div class="activity-card-body">
+            <div class="activity-card-top">
+              <h3>{{ item.title }}</h3>
+              <strong>+{{ item.points }} XP</strong>
+            </div>
+            <p>{{ activity_type.replace('_', ' ')|title }} activity recorded in SkillFlow.</p>
+            <small>{{ item.created_at }}</small>
+          </div>
+        </article>
+        {% else %}
+        <div class="daily-empty-state">
+          <i class="fa-regular fa-clock"></i>
+          <p>No recent activity yet.</p>
+        </div>
+        {% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <section class="glass-panel engagement-list daily-section-card saved-users-card">
+      <h2 class="section-title">Saved Users</h2>
+      <div class="saved-user-grid">
+      {% for saved in engagement.saved_users %}
+      <a class="saved-user-card" href="{{ url_for('public_profile_page', user_id=saved.id) }}">
+        <img src="{{ saved.avatar_url }}" alt="{{ saved.username }} avatar">
+        <div>
+          <strong>{{ saved.full_name or saved.username }}</strong>
+          <span>Saved profile</span>
+        </div>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+      {% else %}
+      <div class="daily-empty-state compact">
+        <i class="fa-regular fa-bookmark"></i>
+        <p>Saved profiles will appear here.</p>
+      </div>
+      {% endfor %}
+      </div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='js/skillflow_ui.js') }}?v=csrf-1"></script>
+  <script src="{{ url_for('static', filename='js/engagement_pages.js') }}?v=daily-premium-2"></script>
+</body>
+</html>

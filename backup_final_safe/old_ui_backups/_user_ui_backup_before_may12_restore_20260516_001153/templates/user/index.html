@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillFlow – Swap Skills, Learn & Grow</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=brand-sidebar-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skillflow_ui.css') }}?v=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}?v=brand-sidebar-1">
+</head>
+
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <div class="logo-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" fill="url(#logoGrad)" />
+            <path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none" />
+            <path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"
+              opacity="0.7" />
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stop-color="#3c5896" />
+                <stop offset="100%" stop-color="#9B69F1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">SkillFlow</span>
+      </div>
+      <button class="btn-nav" onclick="handleGetStarted()">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero">
+    <div class="hero-bg-blob blob1"></div>
+    <div class="hero-bg-blob blob2"></div>
+
+    <div class="hero-container">
+      <!-- Left Content -->
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>New · Skill Exchange Platform</span>
+        </div>
+        <h1 class="hero-heading">
+          Swap Skills,<br />
+          <span class="gradient-text">Learn &amp; Grow</span>
+        </h1>
+        <p class="hero-para">
+          SkillFlow is a smart platform where users connect, exchange skills,
+          and enhance their knowledge.
+        </p>
+        <button class="btn-hero" onclick="handleGetStarted()">
+          <span>Get Started</span>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M4 10h12M11 5l5 5-5 5" stroke="white" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-num">12K+</span>
+            <span class="stat-label">Active Users</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-num">300+</span>
+            <span class="stat-label">Skills Listed</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat">
+            <span class="stat-num">98%</span>
+            <span class="stat-label">Satisfaction</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Illustration -->
+      <div class="hero-right">
+        <div class="illustration-wrapper">
+          <div class="floating-card card-python">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#3B82F6" />
+              <path d="M8 12h8M12 8v8" stroke="white" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            Python
+          </div>
+          <div class="floating-card card-design">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="18" height="18" rx="4" fill="#7C3AED" />
+              <circle cx="9" cy="9" r="2" fill="white" />
+              <path d="M3 15l5-5 4 4 3-3 6 6" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" fill="none" />
+            </svg>
+            Graphic Design
+          </div>
+          <!-- <div class="floating-card card-react">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.5" fill="#22C55E"/><ellipse cx="12" cy="12" rx="9" ry="4" stroke="#22C55E" stroke-width="1.5" fill="none"/><ellipse cx="12" cy="12" rx="9" ry="4" stroke="#22C55E" stroke-width="1.5" fill="none" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" stroke="#22C55E" stroke-width="1.5" fill="none" transform="rotate(120 12 12)"/></svg>
+            React Dev
+          </div> -->
+
+          <div class="swap-circle">
+            <div class="swap-ring"></div>
+            <div class="swap-inner">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <path d="M8 16 C8 10 14 6 20 6 C26 6 32 10 32 16" stroke="url(#swapGrad)" stroke-width="2.5"
+                  stroke-linecap="round" fill="none" />
+                <path d="M32 24 C32 30 26 34 20 34 C14 34 8 30 8 24" stroke="url(#swapGrad2)" stroke-width="2.5"
+                  stroke-linecap="round" fill="none" />
+                <path d="M28 12 L32 16 L28 20" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" fill="none" />
+                <path d="M12 20 L8 24 L12 28" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" fill="none" />
+                <defs>
+                  <linearGradient id="swapGrad" x1="8" y1="6" x2="32" y2="16">
+                    <stop stop-color="#2563EB" />
+                    <stop offset="1" stop-color="#7C3AED" />
+                  </linearGradient>
+                  <linearGradient id="swapGrad2" x1="32" y1="24" x2="8" y2="34">
+                    <stop stop-color="#7C3AED" />
+                    <stop offset="1" stop-color="#22C55E" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+          </div>
+
+          <!-- User A -->
+          <div class="user-card user-a">
+            <div class="user-avatar avatar-a">
+              <img src="{{ url_for('static', filename='images/avatar_a.png') }}" alt="avtar-a">
+              <!-- <svg width="50" height="60" viewBox="0 0 50 60" fill="none">
+                <circle cx="25" cy="18" r="12" fill="#BFDBFE"/>
+                <path d="M5 55 C5 40 15 32 25 32 C35 32 45 40 45 55" fill="#3B82F6"/>
+                <circle cx="25" cy="18" r="8" fill="#FDE68A"/>
+                <path d="M18 16 Q25 12 32 16 Q32 22 25 25 Q18 22 18 16Z" fill="#92400E"/>
+              </svg> -->
+            </div>
+            <div class="user-info">
+              <span class="user-name">Alex</span>
+              <span class="user-skill">Teaches Python</span>
+            </div>
+          </div>
+
+          <!-- User B -->
+          <div class="user-card user-b">
+            <div class="user-avatar avatar-b">
+              <img src="{{ url_for('static', filename='images/avatar_b.png') }}" alt="avtar-b">
+              <!-- <svg width="50" height="60" viewBox="0 0 50 60" fill="none">
+                <circle cx="25" cy="18" r="12" fill="#DDD6FE"/> 
+                <path d="M5 55 C5 40 15 32 25 32 C35 32 45 40 45 55" fill="#7C3AED"/>
+                <circle cx="25" cy="18" r="8" fill="#FCA5A5"/>
+                <path d="M17 14 Q25 8 33 14 L33 18 Q29 14 25 16 Q21 14 17 18Z" fill="#7C2D12"/>
+                <path d="M15 18 Q17 13 25 12 Q33 13 35 18" stroke="#7C2D12" stroke-width="1.5" fill="none"/>
+              </svg> -->
+            </div>
+            <div class="user-info">
+              <span class="user-name">Mia</span>
+              <span class="user-skill">Teaches Design</span>
+            </div>
+          </div>
+
+          <!-- Arrow decorations -->
+          <div class="arrow-right">→</div>
+          <div class="arrow-left">←</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== VIDEO TUTORIAL SECTION ========== -->
+  <section class="video-section">
+    <div class="container-fluid">
+      <h2 class="section-title">See How Skills Pro Works</h2>
+      <div class="video-wrapper">
+        <video controls>
+          <source src="your-video-path.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <p class="section-subtitle">Watch how to sign up, add skills, match users, send requests, and start learning.</p>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS SECTION ========== -->
+  <section class="how-it-works">
+    <div class="container-fluid">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-icon"><i class="fa-solid fa-user-plus"></i></div>
+          <h4>Sign up and create profile</h4>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fa-solid fa-list-check"></i></div>
+          <h4>Add skills (learn & teach)</h4>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fa-solid fa-people-arrows"></i></div>
+          <h4>Get matched with users</h4>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fa-solid fa-paper-plane"></i></div>
+          <h4>Send/accept requests</h4>
+        </div>
+        <div class="step-card">
+          <div class="step-icon"><i class="fa-solid fa-comments"></i></div>
+          <h4>Unlock chat & start learning</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURES SECTION ========== -->
+  <section class="features">
+    <div class="container-fluid">
+      <h2 class="section-title">Why Choose Skills Pro?</h2>
+      <div class="features-grid">
+        <div class="feature-box">
+          <div class="feature-icon"><i class="fa-solid fa-bullseye"></i></div>
+          <h3>Skill-based matching</h3>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <h3>Secure login with password hashing</h3>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon"><i class="fa-solid fa-unlock-keyhole"></i></div>
+          <h3>Chat unlock after payment</h3>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon"><i class="fa-regular fa-calendar-check"></i></div>
+          <h3>Meeting scheduling via links</h3>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon"><i class="fa-solid fa-desktop"></i></div>
+          <h3>Admin monitoring system</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SEARCH SECTION ========== -->
+  <section class="search-section">
+    <div class="container-fluid">
+      <h2 class="section-title">Find the right people based on your interests</h2>
+      <div class="search-bar-ui">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" placeholder="Search skills like Python, Design" readonly>
+        </div>
+        <button class="btn-search">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRICING SECTION ========== -->
+  <section class="pricing-section">
+    <div class="container-fluid">
+      <h2 class="section-title">Simple Pricing</h2>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-header">
+            <h3>Free Plan</h3>
+            <div class="price">₹0</div>
+          </div>
+          <ul class="price-features">
+            <li><i class="fa-solid fa-check"></i> Basic features</li>
+            <li><i class="fa-solid fa-check"></i> Skill listing</li>
+            <li><i class="fa-solid fa-check"></i> View profiles</li>
+          </ul>
+          <button class="btn-plan">Get Started</button>
+        </div>
+        <div class="price-card premium">
+          <div class="premium-badge">Most Popular</div>
+          <div class="price-header">
+            <h3>Premium Plan</h3>
+            <div class="price">₹199</div>
+          </div>
+          <ul class="price-features">
+            <li><i class="fa-solid fa-check"></i> All Free features</li>
+            <li><i class="fa-solid fa-check"></i> Chat unlock</li>
+            <li><i class="fa-solid fa-check"></i> Priority support</li>
+          </ul>
+          <button class="btn-plan btn-plan-premium">Upgrum ade Now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SECURITY SECTION ========== -->
+  <section class="security-section">
+    <div class="container-fluid">
+      <h2 class="section-title">Your Security is Our Priority</h2>
+      <div class="security-grid">
+        <div class="security-item">
+          <div class="sec-icon"><i class="fa-solid fa-lock"></i></div>
+          <h4>Secure authentication</h4>
+        </div>
+        <div class="security-item">
+          <div class="sec-icon"><i class="fa-solid fa-user-shield"></i></div>
+          <h4>Password hashing</h4>
+        </div>
+        <div class="security-item">
+          <div class="sec-icon"><i class="fa-solid fa-eye"></i></div>
+          <h4>Admin control system</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container-fluid">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="16" r="15" fill="url(#logoGradFoot)" />
+              <path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none" />
+              <path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7" />
+              <defs>
+                <linearGradient id="logoGradFoot" x1="0" y1="0" x2="32" y2="32">
+                  <stop offset="0%" stop-color="#3c5896" />
+                  <stop offset="100%" stop-color="#9B69F1" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          Skills Pro
+        </div>
+        <div class="footer-links">
+          <a href="#">About</a>
+          <a href="mailto:contact@skillspro.com">Contact email</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 Skills Pro. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/skillflow_ui.js') }}?v=1"></script>
+  <script src="{{ url_for('static', filename='js/index_script.js') }}"></script>
+</body>
+
+</html>

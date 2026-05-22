@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Categories - SkillFlow</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=user-mobile-responsive-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skillflow_ui.css') }}?v=safe-dropdown-theme-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/engagement_pages.css') }}?v=category-icons-3">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user_scrollbar.css') }}?v=user-scrollbar-theme-1">
+</head>
+<body class="app-layout engagement-page skill-categories-page">
+  {% macro render_skill_icon(skill_name, icon_class) -%}
+    {% set n = (skill_name or '')|lower|trim %}
+    {% if 'chatgpt' in n or 'chat gpt' in n %}
+      {% set icon = 'fa-solid fa-robot' %}{% set tone = 'purple' %}
+    {% elif 'prompt' in n %}
+      {% set icon = 'fa-solid fa-terminal' %}{% set tone = 'violet' %}
+    {% elif 'deep learning' in n %}
+      {% set icon = 'fa-solid fa-layer-group' %}{% set tone = 'purple' %}
+    {% elif 'data science' in n or 'database' in n %}
+      {% set icon = 'fa-solid fa-database' %}{% set tone = 'cyan' %}
+    {% elif 'machine learning' in n %}
+      {% set icon = 'fa-solid fa-diagram-project' %}{% set tone = 'purple' %}
+    {% elif n == 'ml' or 'algorithm' in n %}
+      {% set icon = 'fa-solid fa-microchip' %}{% set tone = 'lavender' %}
+    {% elif n == 'ai' or 'artificial intelligence' in n or 'machine' in n %}
+      {% set icon = 'fa-solid fa-brain' %}{% set tone = 'purple' %}
+    {% elif 'python' in n %}
+      {% set icon = 'fa-brands fa-python' %}{% set tone = 'blue' %}
+    {% elif 'javascript' in n or n == 'js' %}
+      {% set icon = 'fa-brands fa-js' %}{% set tone = 'peach' %}
+    {% elif 'html' in n %}
+      {% set icon = 'fa-brands fa-html5' %}{% set tone = 'orange' %}
+    {% elif 'css' in n %}
+      {% set icon = 'fa-brands fa-css3-alt' %}{% set tone = 'sky' %}
+    {% elif 'react' in n %}
+      {% set icon = 'fa-brands fa-react' %}{% set tone = 'cyan' %}
+    {% elif 'program' in n or 'coding' in n or 'code' in n %}
+      {% set icon = 'fa-solid fa-code' %}{% set tone = 'purple' %}
+    {% elif 'startup' in n %}
+      {% set icon = 'fa-solid fa-rocket' %}{% set tone = 'pink' %}
+    {% elif 'finance' in n or 'money' in n %}
+      {% set icon = 'fa-solid fa-wallet' %}{% set tone = 'peach' %}
+    {% elif 'sales' in n %}
+      {% set icon = 'fa-solid fa-chart-line' %}{% set tone = 'mint' %}
+    {% elif 'entrepreneur' in n or 'idea' in n %}
+      {% set icon = 'fa-solid fa-lightbulb' %}{% set tone = 'peach' %}
+    {% elif 'management' in n or 'manager' in n %}
+      {% set icon = 'fa-solid fa-list-check' %}{% set tone = 'blue' %}
+    {% elif 'business' in n %}
+      {% set icon = 'fa-solid fa-briefcase' %}{% set tone = 'blue' %}
+    {% elif 'aws' in n %}
+      {% set icon = 'fa-solid fa-server' %}{% set tone = 'sky' %}
+    {% elif 'azure' in n %}
+      {% set icon = 'fa-solid fa-database' %}{% set tone = 'cyan' %}
+    {% elif 'gcp' in n %}
+      {% set icon = 'fa-solid fa-network-wired' %}{% set tone = 'blue' %}
+    {% elif 'devops' in n %}
+      {% set icon = 'fa-solid fa-code-branch' %}{% set tone = 'violet' %}
+    {% elif 'cloud' in n %}
+      {% set icon = 'fa-solid fa-cloud' %}{% set tone = 'sky' %}
+    {% elif 'baking' in n or 'bakery' in n %}
+      {% set icon = 'fa-solid fa-cake-candles' %}{% set tone = 'peach' %}
+    {% elif 'recipe' in n %}
+      {% set icon = 'fa-solid fa-clipboard-list' %}{% set tone = 'peach' %}
+    {% elif 'cooking' in n or 'cook' in n %}
+      {% set icon = 'fa-solid fa-utensils' %}{% set tone = 'peach' %}
+    {% elif 'guitar' in n %}
+      {% set icon = 'fa-solid fa-guitar' %}{% set tone = 'pink' %}
+    {% elif 'piano' in n %}
+      {% set icon = 'fa-solid fa-keyboard' %}{% set tone = 'lavender' %}
+    {% elif 'singing' in n or 'vocal' in n %}
+      {% set icon = 'fa-solid fa-microphone-lines' %}{% set tone = 'pink' %}
+    {% elif 'music' in n %}
+      {% set icon = 'fa-solid fa-music' %}{% set tone = 'pink' %}
+    {% elif 'copywriting' in n %}
+      {% set icon = 'fa-solid fa-feather-pointed' %}{% set tone = 'pink' %}
+    {% elif 'blog' in n %}
+      {% set icon = 'fa-solid fa-newspaper' %}{% set tone = 'lavender' %}
+    {% elif 'content' in n or 'writing' in n %}
+      {% set icon = 'fa-solid fa-pen-nib' %}{% set tone = 'pink' %}
+    {% elif 'photoshop' in n %}
+      {% set icon = 'fa-solid fa-image' %}{% set tone = 'violet' %}
+    {% elif 'illustrator' in n %}
+      {% set icon = 'fa-solid fa-pen-fancy' %}{% set tone = 'orange' %}
+    {% elif 'graphic' in n or 'design' in n %}
+      {% set icon = 'fa-solid fa-palette' %}{% set tone = 'violet' %}
+    {% elif 'spring' in n %}
+      {% set icon = 'fa-solid fa-leaf' %}{% set tone = 'mint' %}
+    {% elif 'android' in n %}
+      {% set icon = 'fa-brands fa-android' %}{% set tone = 'mint' %}
+    {% elif 'java' in n %}
+      {% set icon = 'fa-brands fa-java' %}{% set tone = 'orange' %}
+    {% elif 'speaking' in n %}
+      {% set icon = 'fa-solid fa-microphone' %}{% set tone = 'pink' %}
+    {% elif 'grammar' in n %}
+      {% set icon = 'fa-solid fa-book-open' %}{% set tone = 'peach' %}
+    {% elif 'language' in n or 'translate' in n %}
+      {% set icon = 'fa-solid fa-language' %}{% set tone = 'sky' %}
+    {% elif 'excel' in n or 'spreadsheet' in n %}
+      {% set icon = 'fa-solid fa-file-excel' %}{% set tone = 'mint' %}
+    {% elif 'powerpoint' in n or 'presentation' in n %}
+      {% set icon = 'fa-solid fa-file-powerpoint' %}{% set tone = 'orange' %}
+    {% elif 'office' in n or 'document' in n %}
+      {% set icon = 'fa-solid fa-file-lines' %}{% set tone = 'cyan' %}
+    {% elif 'yoga' in n or 'meditation' in n %}
+      {% set icon = 'fa-solid fa-spa' %}{% set tone = 'mint' %}
+    {% elif 'gym' in n or 'fitness' in n or 'weights' in n %}
+      {% set icon = 'fa-solid fa-dumbbell' %}{% set tone = 'lavender' %}
+    {% elif 'photo' in n or 'camera' in n %}
+      {% set icon = 'fa-solid fa-camera-retro' %}{% set tone = 'blue' %}
+    {% elif 'video' in n or 'editing' in n %}
+      {% set icon = 'fa-solid fa-circle-play' %}{% set tone = 'pink' %}
+    {% elif 'cyber' in n or 'security' in n %}
+      {% set icon = 'fa-solid fa-shield-halved' %}{% set tone = 'mint' %}
+    {% else %}
+      {% set icon = 'fa-solid fa-shapes' %}{% set tone = 'purple' %}
+    {% endif %}
+    <span class="{{ icon_class }} skill-icon-{{ tone }}" aria-hidden="true"><i class="{{ icon }}"></i></span>
+  {%- endmacro %}
+
+  <aside class="sidebar">
+    <div class="sidebar-header"><div class="logo-box"><div class="logo-icon"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" fill="url(#logoGrad)"/><path d="M10 20 Q16 8 22 20" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 14 Q16 26 24 14" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/><defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#9b85ff"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs></svg></div><span class="logo-text">SkillFlow</span></div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard_page') }}" class="nav-item"><i class="fa-solid fa-home"></i><span>Dashboard</span></a>
+      <a href="{{ url_for('skill_categories_page') }}" class="nav-item active"><i class="fa-solid fa-layer-group"></i><span>Skill Categories</span></a>
+      <a href="{{ url_for('search_page') }}" class="nav-item"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></a>
+      <a href="{{ url_for('requests_page') }}" class="nav-item"><i class="fa-solid fa-handshake"></i><span>Requests</span></a>
+      <a href="{{ url_for('chat_page') }}" class="nav-item"><i class="fa-regular fa-message"></i><span>Chat</span></a>
+      <a href="{{ url_for('notifications_page') }}" class="nav-item"><i class="fa-solid fa-bell"></i><span>Notifications</span>{% if user_nav_unread_count %}<span class="nav-mini-badge">{{ user_nav_unread_count }}</span>{% endif %}</a>
+      <a href="{{ url_for('reviews_page') }}" class="nav-item"><i class="fa-solid fa-star"></i><span>Reviews</span></a>
+      <a href="{{ url_for('daily_activity_page') }}" class="nav-item"><i class="fa-solid fa-chart-line"></i><span>Daily Activity</span></a>
+      <a href="{{ url_for('profile_page') }}" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    </nav>
+    <div class="sidebar-footer"><a href="{{ url_for('logout') }}" class="nav-item logout-item"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></a></div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-header engagement-header">
+      <div>
+        <h1>Skill Categories</h1>
+        <p>Explore skills available across SkillFlow and find people learning or teaching them.</p>
+      </div>
+      <label class="skill-category-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="skillCategorySearch" type="search" placeholder="Search skills..." autocomplete="off">
+      </label>
+    </div>
+
+    <section class="skill-category-sections">
+      {% for category in categories %}
+      <article class="glass-panel skill-category-section" data-category-card data-category-name="{{ category.category_name|lower }}" data-category-keywords="{{ (category.keywords or '')|lower }}">
+        <div class="skill-category-section-head">
+          {{ render_skill_icon(category.category_name, 'skill-category-icon') }}
+          <div>
+            <h2>{{ category.category_name }}</h2>
+            <p>{{ category.preview or 'Explore related skills' }}</p>
+          </div>
+          <strong>{{ category.saved_users or 0 }} users</strong>
+        </div>
+        <div class="skill-card-grid">
+          {% set keyword_list = category.keywords.split(',') if category.keywords else [category.category_name] %}
+          {% for keyword in keyword_list %}
+            {% set skill = keyword.strip() %}
+            {% if skill %}
+            <a class="skill-category-card" href="{{ url_for('skill_users_page', skill_name=skill) }}" data-skill-name="{{ skill|lower }}">
+              {{ render_skill_icon(skill, 'skill-card-icon') }}
+              <span>{{ skill }}</span>
+            </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </article>
+      {% else %}
+      <p class="engagement-empty">No skill categories available yet.</p>
+      {% endfor %}
+    </section>
+
+    <section class="glass-panel engagement-list skill-category-results">
+      <h2 class="section-title">{{ selected_category.category_name if selected_category else 'Open a category' }}</h2>
+      {% if selected_category %}
+        {% for item in related_users %}
+        <a class="mini-user-row" href="{{ url_for('public_profile_page', user_id=item.id) }}">
+          <img src="{{ item.avatar_url }}" alt="{{ item.username }} avatar">
+          <span>{{ item.full_name or item.username }}</span>
+          <strong>{{ item.skills_offered or item.skills_wanted or 'SkillFlow member' }}</strong>
+        </a>
+        {% else %}
+        <p class="engagement-empty">No users have selected this category yet.</p>
+        {% endfor %}
+      {% else %}
+      <p class="engagement-empty">Select a category to see related SkillFlow users.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/skillflow_ui.js') }}?v=csrf-1"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('skillCategorySearch');
+      const cards = document.querySelectorAll('[data-category-card]');
+      input?.addEventListener('input', () => {
+        const query = input.value.trim().toLowerCase();
+        cards.forEach((card) => {
+          const text = `${card.dataset.categoryName || ''} ${card.dataset.categoryKeywords || ''}`;
+          card.hidden = query && !text.includes(query);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

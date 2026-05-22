@@ -1,0 +1,77 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Disputes{% endblock %}
+{% block content %}
+{% set total_disputes = disputes|length %}
+{% set pending_disputes = namespace(value=0) %}
+{% set resolved_disputes = namespace(value=0) %}
+{% set rejected_disputes = namespace(value=0) %}
+{% for dispute in disputes %}
+  {% if dispute.status in ['pending', 'under_review'] %}{% set pending_disputes.value = pending_disputes.value + 1 %}{% endif %}
+  {% if dispute.status == 'resolved' %}{% set resolved_disputes.value = resolved_disputes.value + 1 %}{% endif %}
+  {% if dispute.status == 'rejected' %}{% set rejected_disputes.value = rejected_disputes.value + 1 %}{% endif %}
+{% endfor %}
+<div class="disputes-admin-page">
+<section class="admin-page-head disputes-admin-head">
+  <div>
+    <span class="admin-eyebrow">Resolution Center</span>
+    <h1>Disputes</h1>
+    <p class="admin-muted">Review user disputes, resolve issues, and track dispute status.</p>
+  </div>
+  <div class="disputes-head-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+</section>
+
+<section class="admin-grid admin-section disputes-stats-grid">
+  <article class="admin-card dispute-stat-card total"><span>Total Disputes</span><strong>{{ total_disputes }}</strong><i class="fa-solid fa-scale-balanced"></i></article>
+  <article class="admin-card dispute-stat-card pending"><span>Pending</span><strong>{{ pending_disputes.value }}</strong><i class="fa-solid fa-clock"></i></article>
+  <article class="admin-card dispute-stat-card resolved"><span>Resolved</span><strong>{{ resolved_disputes.value }}</strong><i class="fa-solid fa-circle-check"></i></article>
+  <article class="admin-card dispute-stat-card rejected"><span>Rejected</span><strong>{{ rejected_disputes.value }}</strong><i class="fa-solid fa-ban"></i></article>
+</section>
+
+<section class="admin-toolbar admin-section disputes-search-toolbar">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Search by reporter, reported user, reason, description, status, or date.</span>
+  </div>
+  <div class="admin-filter-chips">
+    <button class="admin-filter-chip active" type="button" data-admin-filter="dispute-status" data-filter-value="all">All</button>
+    <button class="admin-filter-chip warn" type="button" data-admin-filter="dispute-status" data-filter-value="pending">Pending</button>
+    <button class="admin-filter-chip" type="button" data-admin-filter="dispute-status" data-filter-value="resolved">Resolved</button>
+    <button class="admin-filter-chip danger" type="button" data-admin-filter="dispute-status" data-filter-value="rejected">Rejected</button>
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section disputes-admin-panel">
+  <table class="admin-table disputes-admin-table">
+    <thead><tr><th>ID</th><th>Reporter</th><th>Reported User</th><th>Reason</th><th>Description</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for dispute in disputes %}
+      <tr data-search-row data-dispute-status="{{ 'pending' if dispute.status in ['pending', 'under_review'] else dispute.status }}" data-search-text="{{ dispute.id }} {{ dispute.reporter_name }} {{ dispute.reported_name }} {{ dispute.reason }} {{ dispute.description }} {{ dispute.status_label }} {{ dispute.created_at }}">
+        <td>#{{ dispute.id }}</td>
+        <td>{{ dispute.reporter_name }}</td>
+        <td>{{ dispute.reported_name }}</td>
+        <td>{{ dispute.reason }}</td>
+        <td>{{ dispute.description or '-' }}</td>
+        <td><span class="status-pill status-{{ dispute.status }}">{{ dispute.status_label or 'Pending' }}</span></td>
+        <td>{{ dispute.created_at }}</td>
+        <td>
+          <div class="admin-actions dispute-actions">
+            <form method="post" action="{{ url_for('admin_update_dispute_status', dispute_id=dispute.id, status='under_review') }}">
+              <button class="action-btn soft" type="submit">Mark as Under Review</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_update_dispute_status', dispute_id=dispute.id, status='resolved') }}">
+              <button class="action-btn" type="submit">Resolve</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_update_dispute_status', dispute_id=dispute.id, status='rejected') }}">
+              <button class="action-btn danger" type="submit">Reject</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8"><div class="admin-empty-state disputes-empty-state"><i class="fa-solid fa-scale-balanced"></i><strong>No disputes found</strong><span>User disputes will appear here.</span></div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Daily Activity{% endblock %}
+{% block content %}
+<div class="admin-daily-activity-page">
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">User engagement</span>
+    <h1>Daily Activity</h1>
+    <p class="admin-muted">View real partner learning activity, rewards, chat interactions, and shared streak status.</p>
+  </div>
+</section>
+
+<section class="admin-grid admin-section admin-gradient-stats">
+  <article class="admin-card"><span>Total XP</span><strong>{{ stats.total_xp }}</strong></article>
+  <article class="admin-card"><span>Daily Rewards</span><strong>{{ stats.rewards }}</strong></article>
+  <article class="admin-card"><span>Active Streaks</span><strong>{{ stats.active_streaks }}</strong></article>
+  <article class="admin-card"><span>Broken Streaks</span><strong>{{ stats.broken_streaks }}</strong></article>
+</section>
+
+<section class="admin-section">
+  <h2>Learning Partner Activity</h2>
+  <div class="admin-toolbar">
+    <div class="admin-toolbar-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" data-admin-search placeholder="Search user, partner, activity, date"></div>
+    <button class="admin-filter-chip active" type="button" data-admin-filter="activity-status" data-filter-value="all">All</button>
+    <button class="admin-filter-chip" type="button" data-admin-filter="activity-status" data-filter-value="active">Active Streak</button>
+    <button class="admin-filter-chip" type="button" data-admin-filter="activity-status" data-filter-value="broken">Broken Streak</button>
+    <button class="admin-filter-chip" type="button" data-admin-filter="activity-status" data-filter-value="pending">Chat Activity</button>
+  </div>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>User</th><th>Connected Partner</th><th>Activity Type</th><th>XP Earned</th><th>Current Streak</th><th>Best Streak</th><th>Last Interaction</th><th>Last Reward</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for user in leaders %}
+        <tr data-search-row data-activity-status="{{ user.activity_status }}" data-search-text="{{ user.full_name or user.username }} {{ user.partner_full_name or user.partner_username }} {{ user.skill_offered }} {{ user.skill_requested }} {{ user.activity_status }} {{ user.last_interaction_at }}">
+          <td>{{ user.full_name or user.username }}</td>
+          <td>{{ user.partner_full_name or user.partner_username }}</td>
+          <td>Chat learning / {{ user.skill_offered or 'Skill' }} ↔ {{ user.skill_requested or 'Skill' }}</td>
+          <td>{{ user.xp_points }}</td>
+          <td>{{ user.current_streak }}</td>
+          <td>{{ user.longest_streak }}</td>
+          <td>{{ user.last_interaction_at or '-' }}</td>
+          <td>{{ user.last_reward_claimed_at or '-' }}</td>
+          <td><span class="admin-status {{ user.activity_status }}">{{ user.activity_status|title }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9">No connected partner activity found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="admin-section">
+  <h2>Recent Activity</h2>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead><tr><th>ID</th><th>User</th><th>Type</th><th>Title</th><th>Points</th><th>Related</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for item in activity %}
+        <tr data-search-row>
+          <td>#{{ item.id }}</td>
+          <td>{{ item.full_name or item.username }}</td>
+          <td>{{ item.activity_type }}</td>
+          <td>{{ item.title }}</td>
+          <td>+{{ item.points }}</td>
+          <td>{{ item.related_id or '-' }}</td>
+          <td>{{ item.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7">No activity entries found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+</div>
+{% endblock %}

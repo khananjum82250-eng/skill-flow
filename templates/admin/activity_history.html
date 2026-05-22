@@ -1,0 +1,91 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Activity History{% endblock %}
+{% block content %}
+<div class="activity-history-page">
+  <section class="admin-page-head">
+    <div>
+      <span class="admin-eyebrow">Admin Panel</span>
+      <h1>Activity History / Audit Logs</h1>
+      <p class="admin-muted">Track safe summaries of important admin actions.</p>
+    </div>
+  </section>
+
+  <section class="audit-stats-grid">
+    <article class="audit-stat-card"><i class="fa-solid fa-database"></i><span>Total Logs</span><strong>{{ stats.total }}</strong></article>
+    <article class="audit-stat-card pink"><i class="fa-solid fa-calendar-day"></i><span>Today's Actions</span><strong>{{ stats.today }}</strong></article>
+    <article class="audit-stat-card blue"><i class="fa-solid fa-users-gear"></i><span>User Actions</span><strong>{{ stats.user }}</strong></article>
+    <article class="audit-stat-card green"><i class="fa-solid fa-shield-halved"></i><span>Security Actions</span><strong>{{ stats.security }}</strong></article>
+  </section>
+
+  <section class="admin-toolbar admin-section audit-toolbar">
+    <div class="admin-toolbar-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <span>Search audit logs by admin, action, target, IP, or description.</span>
+    </div>
+    <div class="audit-filter-row">
+      <label class="audit-filter-control">
+        <span>Action Type</span>
+        <select class="audit-mini-input" data-audit-category-select>
+          <option value="all">All actions</option>
+          <option value="user">User</option>
+          <option value="security">Security</option>
+          <option value="settings">Settings</option>
+          <option value="content">Content</option>
+        </select>
+      </label>
+      <label class="audit-filter-control">
+        <span>Date From</span>
+        <input class="audit-mini-input" type="date" data-audit-date-from aria-label="From date">
+      </label>
+      <label class="audit-filter-control">
+        <span>Date To</span>
+        <input class="audit-mini-input" type="date" data-audit-date-to aria-label="To date">
+      </label>
+      <button class="admin-filter-chip audit-reset-btn" type="button" data-audit-reset><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      <button class="admin-button admin-export-btn" type="button" data-export-audit><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+    </div>
+  </section>
+
+  <div class="admin-table-wrap admin-section audit-log-panel">
+    <table class="admin-table modern-admin-table audit-log-table">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Admin</th>
+          <th>Action</th>
+          <th>Target</th>
+          <th>Description</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        {% set is_user = log.target_type == 'user' or log.action_type in ['block','unblock','delete','restore','manual_email_verify','report_user_blocked'] %}
+        {% set is_security = log.action_type in ['admin_login','admin_logout'] or 'security' in log.action_type %}
+        {% set is_settings = log.action_type.startswith('settings_') %}
+        {% set category = 'user' if is_user else ('security' if is_security else ('settings' if is_settings else 'content')) %}
+        <tr data-search-row
+            data-audit-category="{{ category }}"
+            data-audit-admin="{{ log.admin_name }}"
+            data-audit-date="{{ log.created_at.strftime('%Y-%m-%d') if log.created_at else '' }}"
+            data-export-audit-date="{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else '-' }}"
+            data-export-audit-admin="{{ log.admin_name }}"
+            data-export-audit-action="{{ log.action_title }}"
+            data-export-audit-target="{{ (log.target_type or '-') ~ (' #' ~ log.target_id|string if log.target_id else '') }}"
+            data-export-audit-description="{{ log.action_description or '-' }}"
+            data-export-audit-ip="{{ log.ip_address or '-' }}">
+          <td><strong>{{ log.created_at.strftime('%d %b %Y') if log.created_at else '-' }}</strong><small>{{ log.created_at.strftime('%I:%M %p') if log.created_at else '' }}</small></td>
+          <td>{{ log.admin_name }}</td>
+          <td><span class="audit-action-pill {{ category }}">{{ log.action_title }}</span></td>
+          <td>{{ log.target_name or log.target_type or '-' }}{% if log.target_id %} <small>#{{ log.target_id }}</small>{% endif %}</td>
+          <td>{{ log.action_description or '-' }}</td>
+          <td>{{ log.ip_address or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="admin-empty-state audit-empty"><i class="fa-solid fa-clock-rotate-left"></i><strong>No activity logs yet</strong><span>Admin actions will appear here after they are performed.</span></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

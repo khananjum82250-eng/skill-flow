@@ -1,0 +1,55 @@
+body:not(.admin-body),
+body:not(.admin-body) * {
+  scrollbar-color: rgba(139, 92, 246, 0.72) rgba(196, 181, 253, 0.14) !important;
+  scrollbar-width: thin !important;
+}
+
+body:not(.admin-body)::-webkit-scrollbar,
+body:not(.admin-body) *::-webkit-scrollbar {
+  height: 8px !important;
+  width: 8px !important;
+}
+
+body:not(.admin-body)::-webkit-scrollbar-track,
+body:not(.admin-body) *::-webkit-scrollbar-track {
+  background: rgba(196, 181, 253, 0.13) !important;
+  border-radius: 999px !important;
+}
+
+body:not(.admin-body)::-webkit-scrollbar-thumb,
+body:not(.admin-body) *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.82), rgba(244, 114, 182, 0.62)) !important;
+  border: 2px solid rgba(255, 255, 255, 0.72) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.22) !important;
+}
+
+body:not(.admin-body)::-webkit-scrollbar-thumb:hover,
+body:not(.admin-body) *::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.92), rgba(244, 114, 182, 0.74)) !important;
+}
+
+body.dashboard-page > .main-content {
+  scrollbar-color: rgba(139, 92, 246, 0.72) rgba(196, 181, 253, 0.14) !important;
+  scrollbar-width: thin !important;
+}
+
+body.dashboard-page > .main-content::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+body.dashboard-page > .main-content::-webkit-scrollbar-track {
+  background: rgba(196, 181, 253, 0.13) !important;
+  border-radius: 999px !important;
+}
+
+body.dashboard-page > .main-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.82), rgba(244, 114, 182, 0.62)) !important;
+  border: 2px solid rgba(255, 255, 255, 0.72) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.22) !important;
+}
+
+body.dashboard-page > .main-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.92), rgba(244, 114, 182, 0.74)) !important;
+}

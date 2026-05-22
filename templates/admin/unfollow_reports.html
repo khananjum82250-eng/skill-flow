@@ -1,0 +1,100 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Removed Connections{% endblock %}
+{% block content %}
+<section class="admin-page-head">
+  <div>
+    <span class="admin-eyebrow">Match Health</span>
+    <h1>Removed Connections</h1>
+    <p class="admin-muted">Review unfollows, removed matches, cancelled requests, reasons, timing, and linked requests.</p>
+  </div>
+  <div class="admin-page-count">
+    <i class="fa-solid fa-user-minus"></i>
+    <span>{{ total_reports }} reports</span>
+  </div>
+</section>
+
+<section class="admin-toolbar admin-section">
+  <div class="admin-toolbar-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span>Use the top search to filter by user, reason, status, request ID, or date.</span>
+  </div>
+  <div class="admin-filter-chips">
+    <a class="admin-filter-chip {{ 'active' if not selected_action }}" href="{{ url_for('admin_unfollow_reports_page') }}"><i class="fa-solid fa-list"></i> All</a>
+    <a class="admin-filter-chip {{ 'active' if selected_action == 'unfollow' }}" href="{{ url_for('admin_unfollow_reports_page', action='unfollow') }}"><i class="fa-solid fa-user-minus"></i> Unfollow</a>
+    <a class="admin-filter-chip {{ 'active' if selected_action == 'remove_match' }}" href="{{ url_for('admin_unfollow_reports_page', action='remove_match') }}"><i class="fa-solid fa-link-slash"></i> Remove Match</a>
+    <a class="admin-filter-chip {{ 'active' if selected_action == 'cancel_request' }}" href="{{ url_for('admin_unfollow_reports_page', action='cancel_request') }}"><i class="fa-solid fa-ban"></i> Cancel Request</a>
+    {% for item in reason_counts[:4] %}
+    <span class="admin-filter-chip danger"><i class="fa-solid fa-chart-simple"></i> {{ item.reason }}: {{ item.count }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="admin-table-wrap admin-section admin-data-panel">
+  <table class="admin-table modern-admin-table">
+    <thead>
+      <tr>
+        <th>Connection</th>
+        <th>Action</th>
+        <th>Reason</th>
+        <th>Request</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in reports %}
+      <tr data-search-row>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ item.unfollower_name or item.unfollower_username }} -> {{ item.unfollowed_name or item.unfollowed_username }}</strong>
+            <span class="admin-muted">@{{ item.unfollower_username }} to @{{ item.unfollowed_username }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ (item.action_type or 'unfollow').replace('_', ' ')|title }}</strong>
+            <span class="admin-muted">Previous: {{ item.previous_request_status or '-' }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="admin-stack">
+            <strong>{{ item.reason }}</strong>
+            {% if item.custom_reason %}<span class="admin-muted">{{ item.custom_reason }}</span>{% endif %}
+          </div>
+        </td>
+        <td>
+          <div class="admin-stack">
+            <span class="admin-id-pill">Request #{{ item.request_id or '-' }}</span>
+            <span class="admin-muted">Match #{{ item.match_id or '-' }}</span>
+          </div>
+        </td>
+        <td><span class="status-pill status-{{ item.status }}"><i class="fa-solid fa-circle-dot"></i> {{ item.status }}</span></td>
+        <td><strong>{{ item.created_at or '-' }}</strong></td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">
+          <div class="admin-empty-state">
+            <i class="fa-solid fa-user-minus"></i>
+            <strong>No removed connections yet.</strong>
+            <span>When users unfollow, remove a match, or cancel a request, it will appear here.</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="admin-section admin-pagination">
+  {% if page > 1 %}
+  <a class="admin-action-btn" href="{{ url_for('admin_unfollow_reports_page', page=page-1, action=selected_action) }}">Previous</a>
+  {% endif %}
+  <span class="admin-muted">Page {{ page }} of {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a class="admin-action-btn" href="{{ url_for('admin_unfollow_reports_page', page=page+1, action=selected_action) }}">Next</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

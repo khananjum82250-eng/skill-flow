@@ -1,0 +1,19 @@
+Skill_Swipping_Web/
+|-- app.py
+|-- requirements.txt
+|-- Project_Synopsis.md
+|-- skillflow_db.sqlite
+|-- sample_v.mp4
+|-- database/
+|   `-- skillflow_schema.sql
+|-- templates/
+|   |-- admin/
+|   `-- user/
+|-- static/
+|   |-- css/
+|   |-- js/
+|   `-- images/
+|       |-- admin/
+|       `-- avatars/
+`-- avtar/
+    `-- uploaded avatar files
