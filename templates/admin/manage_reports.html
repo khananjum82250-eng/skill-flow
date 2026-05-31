@@ -32,10 +32,10 @@
         <td>{{ item.created_at }}</td>
         <td><span class="status-pill status-{{ item.status|lower }}">{{ item.status }}</span></td>
         <td class="admin-actions">
-          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='reviewed') }}"><button class="action-btn soft" type="submit">Reviewed</button></form>
-          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='resolved') }}"><button class="action-btn soft" type="submit">Resolve</button></form>
-          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='block') }}"><button class="action-btn danger" type="submit">Block User</button></form>
-          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='delete') }}"><button class="action-btn danger" data-confirm="Delete this report?" type="submit">Delete</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='reviewed') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn soft" type="submit">Reviewed</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='resolved') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn soft" type="submit">Resolve</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='block') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn danger" type="submit">Block User</button></form>
+          <form method="post" action="{{ url_for('admin_report_action', report_id=item.id, action='delete') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn danger" data-confirm="Delete this report?" type="submit">Delete</button></form>
         </td>
       </tr>
       {% else %}

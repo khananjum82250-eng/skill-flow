@@ -31,6 +31,7 @@
     <div class="container {% if auth_mode == 'signup' %}active{% endif %}" id="container">
         <div class="form-container sign-up">
             <form method="POST" action="{{ url_for('register') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <h1>Create Account</h1>
                 <span class="mb-15px">Register with your email</span>
                 <input type="text" name="full_name" placeholder="Full Name" required autocomplete="name">
@@ -38,11 +39,11 @@
                 <input type="email" name="email" placeholder="Email" required autocomplete="email">
                 <input type="text" name="location" placeholder="Location" required autocomplete="address-level2">
                 <div class="password-field">
-                    <input type="password" name="password" placeholder="Password" required autocomplete="new-password" minlength="8">
+                    <input type="password" id="signupPassword" name="password" placeholder="Password" required autocomplete="new-password" minlength="8">
                     <button type="button" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
                 </div>
                 <div class="password-field">
-                    <input type="password" name="confirm_password" placeholder="Confirm Password" required autocomplete="new-password" minlength="8">
+                    <input type="password" id="signupConfirmPassword" name="confirm_password" placeholder="Confirm Password" required autocomplete="new-password" minlength="8">
                     <button type="button" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
                 </div>
                 <button type="submit" class="mt-15px">Sign Up</button>
@@ -50,11 +51,12 @@
         </div>
         <div class="form-container sign-in">
             <form method="POST" action="{{ url_for('login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <h2>Sign In</h2>
                 <span>use your email password</span>
                 <input type="email" name="email" placeholder="Email" required autocomplete="email">
                 <div class="password-field">
-                    <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    <input type="password" id="signinPassword" name="password" placeholder="Password" required autocomplete="current-password">
                     <button type="button" class="password-toggle" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
                 </div>
                 <label class="remember-login">

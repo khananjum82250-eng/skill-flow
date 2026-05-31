@@ -90,6 +90,24 @@ body.admin-theme-dark {
   width: min(460px, 100%);
 }
 
+body.admin-reset-page {
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body.admin-reset-page .admin-login {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+@media (max-height: 760px), (max-width: 640px) {
+  body.admin-reset-page .admin-login {
+    place-items: start center;
+  }
+}
+
 .admin-reset-heading {
   margin-top: 18px;
   text-align: center;
@@ -5754,4 +5772,37 @@ body.admin-body.admin-theme-dark .admin-main::-webkit-scrollbar-thumb,
 body.admin-body.admin-theme-dark .admin-sidebar::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #8b5cf6, #db2777) !important;
   border-color: rgba(15, 23, 42, 0.86) !important;
+}
+
+/* Scroll stability fix: separate admin main/sidebar scrolling without layout changes */
+@media (min-width: 769px) {
+  body.admin-body:not(.admin-reset-page) {
+    overflow: hidden !important;
+  }
+
+  body.admin-body .admin-main,
+  body.admin-body .admin-sidebar {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 768px) {
+  body.admin-body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  body.admin-body .admin-shell {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow: visible !important;
+  }
+
+  body.admin-body .admin-main {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow: visible !important;
+  }
 }

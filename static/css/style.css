@@ -3596,3 +3596,29 @@ body.app-layout:is(.dashboard-page, .requests-page, .chat-page, .engagement-page
     padding: 18px !important;
   }
 }
+
+/* Scroll stability fix: keep user pages scrollable without changing layout */
+body.app-layout > .main-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+body.app-layout.requests-page > .main-content,
+body.app-layout.chat-page > .main-content,
+body.app-layout.search-page > .main-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+@media (max-width: 768px) {
+  body.app-layout {
+    min-height: 100dvh !important;
+  }
+
+  body.app-layout > .main-content {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+  }
+}

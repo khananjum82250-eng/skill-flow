@@ -49,6 +49,7 @@
     <span class="status-pill status-{{ 'active' if reminder_settings.enabled else 'expired' }}">{{ 'Enabled' if reminder_settings.enabled else 'Disabled' }}</span>
   </div>
   <form class="subscription-reminder-settings" method="post" action="{{ url_for('admin_subscription_reminder_settings') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label class="toggle-row compact"><span>Automatic reminders</span><input type="checkbox" name="enabled" value="on" {% if reminder_settings.enabled %}checked{% endif %}><i></i></label>
     <label class="reminder-check"><input type="checkbox" name="before_7" value="on" {% if reminder_settings.before_7 %}checked{% endif %}> 7 days</label>
     <label class="reminder-check"><input type="checkbox" name="before_3" value="on" {% if reminder_settings.before_3 %}checked{% endif %}> 3 days</label>
@@ -68,6 +69,7 @@
           <td>{{ item.last_reminder_key or 'Not sent' }}{% if item.last_reminder_at %}<small>{{ item.last_reminder_at }}</small>{% endif %}</td>
           <td>
             <form method="post" action="{{ url_for('admin_send_subscription_reminder', user_id=item.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="action-btn" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Reminder</button>
             </form>
           </td>

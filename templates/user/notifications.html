@@ -37,6 +37,7 @@
       </div>
       <div class="header-actions">
       <form method="post" action="{{ url_for('notifications_mark_read') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="engagement-action" type="submit">Mark All Read</button>
       </form>
       <a class="header-profile-card dashboard-header-profile-block" href="{{ url_for('profile_page') }}">

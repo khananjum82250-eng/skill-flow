@@ -107,7 +107,7 @@ ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'SkillFlow@123')
 if not os.getenv('ADMIN_PASSWORD'):
     print('[Config Warning] ADMIN_PASSWORD is not set. Using the development default password.')
-ADMIN_EMAIL = 'skillflowadmin@gmail.com'
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'skillflowadmin@gmail.com')
 ADMIN_SESSION_HOURS = 24
 ADMIN_SESSION_VERSION = 'skillflow-admin-session-v2'
 
@@ -544,12 +544,18 @@ def match_badge_label(percentage):
 # Database connection configuration
 def get_db_connection():
     try:
+        db_port = int(os.getenv('DB_PORT', '3306') or 3306)
         connection = pymysql.connect(
             host=os.getenv('DB_HOST', 'localhost'),
             user=os.getenv('DB_USER', 'root'),
             password=os.getenv('DB_PASSWORD', ''),
             database=os.getenv('DB_NAME', 'skillflow_db'),
-            cursorclass=pymysql.cursors.DictCursor
+            port=db_port,
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor,
+            connect_timeout=10,
+            read_timeout=20,
+            write_timeout=20,
         )
 
             
@@ -641,6 +647,25 @@ def email_validation_error(email):
         return 'Email is required.'
     if len(email) > 190 or not EMAIL_PATTERN.fullmatch(email):
         return 'Please enter a valid email address.'
+    return None
+
+
+def find_user_by_normalized_email(cursor, email):
+    normalized_email = normalize_email(email)
+    cursor.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE email IS NOT NULL
+          AND LOWER(TRIM(email)) = %s
+        ORDER BY COALESCE(is_verified, FALSE) DESC, id DESC
+        LIMIT 10
+        """,
+        (normalized_email,)
+    )
+    for row in cursor.fetchall():
+        if normalize_email(row.get('email')) == normalized_email:
+            return row
     return None
 
 
@@ -819,7 +844,7 @@ def get_admin_account(cursor, email=None, username=None):
     if not table_exists(cursor, 'admin_accounts'):
         return None
     if email:
-        cursor.execute("SELECT * FROM admin_accounts WHERE LOWER(email) = LOWER(%s) LIMIT 1", (email,))
+        cursor.execute("SELECT * FROM admin_accounts WHERE LOWER(TRIM(email)) = %s LIMIT 1", (normalize_email(email),))
     elif username:
         cursor.execute("SELECT * FROM admin_accounts WHERE username = %s LIMIT 1", (username,))
     else:
@@ -1546,6 +1571,7 @@ def ensure_admin_schema(cursor):
         cursor.execute("ALTER TABLE users ADD COLUMN verification_expiry DATETIME DEFAULT NULL")
     if not column_exists(cursor, 'users', 'verification_last_sent_at'):
         cursor.execute("ALTER TABLE users ADD COLUMN verification_last_sent_at DATETIME DEFAULT NULL")
+    normalize_existing_user_emails(cursor)
     ensure_user_unique_indexes(cursor)
     ensure_email_security_schema(cursor)
     ensure_unfollow_report_schema(cursor)
@@ -1764,8 +1790,8 @@ def ensure_admin_schema(cursor):
         (ADMIN_USERNAME, ADMIN_EMAIL, initial_admin_password)
     )
     cursor.execute(
-        "UPDATE admin_accounts SET email = %s WHERE username = %s OR LOWER(email) = LOWER(%s)",
-        (ADMIN_EMAIL, ADMIN_USERNAME, ADMIN_EMAIL)
+        "UPDATE admin_accounts SET email = %s WHERE username = %s OR LOWER(TRIM(email)) = %s",
+        (ADMIN_EMAIL, ADMIN_USERNAME, normalize_email(ADMIN_EMAIL))
     )
     cursor.execute(
         "UPDATE admin_accounts SET password = %s WHERE (password IS NULL OR password = '') AND username = %s",
@@ -1846,6 +1872,39 @@ def unique_column_index_exists(cursor, table_name, column_name):
     return bool(cursor.fetchone())
 
 
+def normalize_existing_user_emails(cursor):
+    if not table_exists(cursor, 'users') or not column_exists(cursor, 'users', 'email'):
+        return
+    cursor.execute(
+        """
+        SELECT id, email
+        FROM users
+        WHERE email IS NOT NULL
+          AND email != LOWER(TRIM(email))
+        ORDER BY id ASC
+        LIMIT 200
+        """
+    )
+    for row in cursor.fetchall():
+        normalized = normalize_email(row.get('email'))
+        if not normalized:
+            continue
+        cursor.execute(
+            """
+            SELECT id
+            FROM users
+            WHERE id != %s
+              AND LOWER(TRIM(email)) = %s
+            LIMIT 1
+            """,
+            (row['id'], normalized)
+        )
+        if cursor.fetchone():
+            print(f"[DB Maintenance Warning] Duplicate normalized email exists; skipped email normalization for user_id={row['id']}.")
+            continue
+        cursor.execute("UPDATE users SET email = %s WHERE id = %s", (normalized, row['id']))
+
+
 def ensure_user_unique_indexes(cursor):
     # Usernames are validated by the app, but email is the only database-level
     # identity key. This avoids username index conflicts during profile edits.
@@ -1856,7 +1915,7 @@ def ensure_user_unique_indexes(cursor):
     if not unique_column_index_exists(cursor, 'users', 'email'):
         cursor.execute(
             """
-            SELECT LOWER(email) AS value_key, COUNT(*) AS count
+            SELECT LOWER(TRIM(email)) AS value_key, COUNT(*) AS count
             FROM users
             GROUP BY value_key
             HAVING count > 1
@@ -3198,7 +3257,7 @@ def verify_email_page():
                        COALESCE(is_blocked, FALSE) AS is_blocked,
                        COALESCE(is_deleted, FALSE) AS is_deleted
                 FROM users
-                WHERE LOWER(email) = LOWER(%s)
+                WHERE LOWER(TRIM(email)) = %s
                   AND (%s IS NULL OR id = %s)
                 ORDER BY id DESC
                 LIMIT 1
@@ -3233,7 +3292,7 @@ def verify_email_page():
                         """
                         SELECT id, username
                         FROM users
-                        WHERE LOWER(email) = LOWER(%s)
+                        WHERE LOWER(TRIM(email)) = %s
                           AND id = %s
                           AND verification_otp = %s
                           AND verification_expiry IS NOT NULL
@@ -3300,7 +3359,7 @@ def resend_verification_email():
                 SELECT id, email, COALESCE(is_verified, FALSE) AS is_verified,
                        verification_last_sent_at
                 FROM users
-                WHERE LOWER(email) = LOWER(%s)
+                WHERE LOWER(TRIM(email)) = %s
                   AND (%s IS NULL OR id = %s)
                 ORDER BY id DESC
                 LIMIT 1
@@ -3347,7 +3406,7 @@ def forgot_password_page():
 
     if request.method == 'POST':
         action = request.form.get('action', 'send_otp')
-        email = request.form.get('email', '').strip().lower()
+        email = normalize_email(request.form.get('email', ''))
 
         if not email:
             flash('Registered email is required.', 'error')
@@ -3367,7 +3426,7 @@ def forgot_password_page():
                            COALESCE(is_blocked, FALSE) AS is_blocked,
                            COALESCE(is_deleted, FALSE) AS is_deleted
                     FROM users
-                    WHERE LOWER(email) = LOWER(%s)
+                    WHERE LOWER(TRIM(email)) = %s
                     ORDER BY id DESC
                     LIMIT 1
                     """,
@@ -3437,7 +3496,7 @@ def forgot_password_page():
                         SELECT id, email
                         FROM users
                         WHERE id = %s
-                          AND LOWER(email) = LOWER(%s)
+                          AND LOWER(TRIM(email)) = %s
                           AND reset_code = %s
                           AND reset_code_expiry IS NOT NULL
                           AND reset_code_expiry >= NOW()
@@ -3552,8 +3611,13 @@ def register():
     full_name = (request.form.get('full_name') or request.form.get('fullname') or '').strip()
     requested_username = normalize_username(request.form.get('username', ''))
     email = normalize_email(request.form.get('email', ''))
-    password = request.form.get('password', '')
-    confirm_password = request.form.get('confirm_password', '')
+    password = request.form.get('password') or request.form.get('signup_password') or ''
+    confirm_password = (
+        request.form.get('confirm_password')
+        or request.form.get('password_confirm')
+        or request.form.get('confirmPassword')
+        or ''
+    )
     location = request.form.get('location', '').strip()
     if not full_name or not email or not password or not confirm_password or not location:
         flash('All fields are required!', 'error')
@@ -3564,7 +3628,16 @@ def register():
         flash(email_error, 'error')
         return redirect(url_for('auth_page', mode='signup'))
 
+    if password != confirm_password and password.strip() == confirm_password.strip():
+        password = password.strip()
+        confirm_password = confirm_password.strip()
+
     if password != confirm_password:
+        print(
+            "[Auth Debug] signup password mismatch: "
+            f"email={email!r}, keys={list(request.form.keys())}, "
+            f"password_len={len(password)}, confirm_len={len(confirm_password)}"
+        )
         flash('Passwords do not match!', 'error')
         return redirect(url_for('auth_page', mode='signup'))
 
@@ -3590,29 +3663,53 @@ def register():
                 flash('Temporary or fake email addresses are not allowed.', 'error')
                 return redirect(url_for('auth_page', mode='signup'))
 
-            # Check only the submitted email, never stale OTP/session data.
-            cursor.execute(
-                """
-                SELECT *
-                FROM users
-                WHERE LOWER(TRIM(email)) = %s
-                LIMIT 1
-                """,
-                (email,)
-            )
-            existing_email_user = cursor.fetchone()
-            if existing_email_user and normalize_email(existing_email_user.get('email')) == email:
+            # Check only the submitted normalized email, never stale OTP/session data.
+            existing_email_user = find_user_by_normalized_email(cursor, email)
+            if existing_email_user:
                 if existing_email_user.get('is_deleted'):
                     flash('This email belongs to a deleted account. Please contact the admin to restore it.', 'error')
-                elif not existing_email_user.get('is_verified'):
-                    session['pending_verification_email'] = existing_email_user['email']
-                    session['pending_verification_user_id'] = existing_email_user['id']
-                    flash('Account already exists but is not verified. Please verify your email or resend the OTP.', 'error')
-                    return redirect(url_for('verify_email_page', email=existing_email_user['email']))
+                    return redirect(url_for('auth_page', mode='signup'))
+                if existing_email_user.get('is_verified'):
+                    flash('Account already exists.', 'error')
+                    return redirect(url_for('auth_page', mode='signup'))
+
+                if requested_username:
+                    validation_error = username_validation_error(requested_username)
+                    if validation_error:
+                        flash(validation_error, 'error')
+                        return redirect(url_for('auth_page', mode='signup'))
+                    if not is_username_available(cursor, requested_username, exclude_user_id=existing_email_user['id']):
+                        flash('Username already taken.', 'error')
+                        return redirect(url_for('auth_page', mode='signup'))
+                    username = requested_username
                 else:
-                    flash('Email is already registered!', 'error')
-                return redirect(url_for('auth_page', mode='signup'))
-            existing_email_user = None
+                    username = existing_email_user.get('username') or generate_unique_username(cursor, full_name)
+
+                hashed_pw = generate_password_hash(password)
+                default_avatar = existing_email_user.get('avatar_url') or avatar_url_for_seed(username)
+                cursor.execute(
+                    """
+                    UPDATE users
+                    SET username = %s, full_name = %s, email = %s, password_hash = %s,
+                        location = %s, skills_offered = COALESCE(skills_offered, ''),
+                        skills_wanted = COALESCE(skills_wanted, ''), avatar_url = %s,
+                        is_verified = FALSE, verification_token = %s
+                    WHERE id = %s
+                    """,
+                    (
+                        username, full_name, email, hashed_pw, location, default_avatar,
+                        secrets.token_urlsafe(32), existing_email_user['id']
+                    )
+                )
+                verification_otp, _ = issue_verification_otp(cursor, existing_email_user['id'], email)
+                conn.commit()
+                session['pending_verification_email'] = email
+                session['pending_verification_user_id'] = existing_email_user['id']
+                if send_verification_email(email, verification_otp):
+                    flash('Verification code sent. Please verify your email to complete signup.', 'success')
+                else:
+                    flash('Account details updated, but verification email could not be sent. Use Resend Verification Email.', 'error')
+                return redirect(url_for('verify_email_page', email=email))
 
             if requested_username:
                 validation_error = username_validation_error(requested_username)
@@ -3661,7 +3758,7 @@ def register():
             return redirect(url_for('verify_email_page', email=email))
     except pymysql.err.IntegrityError as e:
         error_text = ' '.join(str(part) for part in getattr(e, 'args', ()) or [e])
-        print(f"Registration integrity error: {error_text}")
+        print(f"[Auth Debug] registration integrity error for email={email!r}, username={requested_username!r}: {error_text}")
         if 'email' in error_text.lower():
             flash('Email is already registered!', 'error')
         elif 'username' in error_text.lower():
@@ -3669,7 +3766,8 @@ def register():
         else:
             flash('Unable to create account because of a duplicate value.', 'error')
     except Exception as e:
-        print(f"Registration failed: {type(e).__name__}: {e}")
+        print(f"[Auth Debug] registration failed for email={email!r}, username={requested_username!r}: {type(e).__name__}: {e}")
+        traceback.print_exc()
         flash('Unable to create account right now. Please try again.', 'error')
     finally:
         conn.close()
@@ -3682,17 +3780,19 @@ def login():
         flash('Too many login attempts. Please try again later.', 'error')
         return redirect(url_for('auth_page'))
     clear_user_session_state()
-    email = normalize_email(request.form.get('email', ''))
+    login_identifier = (request.form.get('email') or request.form.get('username') or '').strip()
+    email = normalize_email(login_identifier)
     password = request.form.get('password', '')
     remember_me = request.form.get('remember_me') == 'on'
 
-    if not email or not password:
+    if not login_identifier or not password:
         flash('Email and password are required!', 'error')
         return redirect(url_for('auth_page'))
-    email_error = email_validation_error(email)
-    if email_error:
-        flash(email_error, 'error')
-        return redirect(url_for('auth_page'))
+    if '@' in login_identifier:
+        email_error = email_validation_error(email)
+        if email_error:
+            flash(email_error, 'error')
+            return redirect(url_for('auth_page'))
 
     conn = get_db_connection()
     if not conn:
@@ -3702,38 +3802,57 @@ def login():
     try:
         with conn.cursor() as cursor:
             ensure_user_public_profile_columns(cursor)
-            if column_exists(cursor, 'users', 'is_blocked'):
-                cursor.execute(
-                    """
-                    SELECT id, username, email, password_hash, is_blocked,
-                           COALESCE(is_deleted, FALSE) AS is_deleted,
-                           COALESCE(is_verified, TRUE) AS is_verified,
-                           COALESCE(user_session_version, 1) AS user_session_version
-                    FROM users
-                    WHERE LOWER(email) = LOWER(%s)
-                    ORDER BY id DESC
-                    LIMIT 20
-                    """,
-                    (email,)
-                )
-            else:
-                cursor.execute(
-                    """
-                    SELECT id, username, email, password_hash, FALSE AS is_blocked,
-                           FALSE AS is_deleted, TRUE AS is_verified,
-                           1 AS user_session_version
-                    FROM users
-                    WHERE LOWER(email) = LOWER(%s)
-                    ORDER BY id DESC
-                    LIMIT 20
-                    """,
-                    (email,)
-                )
-            matching_users = cursor.fetchall()
-            user = next(
-                (candidate for candidate in matching_users if check_password_hash(candidate['password_hash'], password)),
-                None
+            has_password_hash = column_exists(cursor, 'users', 'password_hash')
+            has_password = column_exists(cursor, 'users', 'password')
+            if not has_password_hash and not has_password:
+                print('[Login Debug] users table has no password_hash/password column')
+                flash('Unable to sign in right now. Please try again.', 'error')
+                return redirect(url_for('auth_page'))
+
+            password_expr = 'password_hash' if has_password_hash else 'password'
+            select_parts = [
+                'id',
+                'username',
+                'email',
+                f'{password_expr} AS password_hash',
+                'is_blocked' if column_exists(cursor, 'users', 'is_blocked') else 'FALSE AS is_blocked',
+                'is_deleted' if column_exists(cursor, 'users', 'is_deleted') else 'FALSE AS is_deleted',
+                'is_verified' if column_exists(cursor, 'users', 'is_verified') else 'TRUE AS is_verified',
+                'user_session_version' if column_exists(cursor, 'users', 'user_session_version') else '1 AS user_session_version',
+            ]
+            where_sql = 'LOWER(TRIM(email)) = %s'
+            params = [email]
+            if column_exists(cursor, 'users', 'username'):
+                where_sql = f'({where_sql} OR LOWER(TRIM(username)) = %s)'
+                params.append(login_identifier.lower())
+            cursor.execute(
+                f"""
+                SELECT {', '.join(select_parts)}
+                FROM users
+                WHERE {where_sql}
+                ORDER BY id DESC
+                LIMIT 20
+                """,
+                tuple(params)
             )
+            matching_users = cursor.fetchall()
+            user = None
+            legacy_plaintext_password = False
+            for candidate in matching_users:
+                stored_hash = candidate.get('password_hash')
+                if not stored_hash:
+                    print(f"[Login Debug] empty password hash for user_id={candidate.get('id')}")
+                    continue
+                try:
+                    if check_password_hash(stored_hash, password):
+                        user = candidate
+                        break
+                except Exception as hash_error:
+                    print(f"[Login Debug] invalid password hash for user_id={candidate.get('id')}: {type(hash_error).__name__}")
+                if stored_hash == password:
+                    user = candidate
+                    legacy_plaintext_password = True
+                    break
 
             if not matching_users:
                 flash('Email not found! Please register.', 'error')
@@ -3749,10 +3868,18 @@ def login():
                 flash('Please verify your email before continuing.', 'error')
                 return redirect(url_for('verify_email_page', email=user['email']))
             else:
+                if legacy_plaintext_password and has_password_hash:
+                    cursor.execute(
+                        "UPDATE users SET password_hash = %s WHERE id = %s",
+                        (generate_password_hash(password), user['id'])
+                    )
+                    conn.commit()
+                    print(f"[Login Debug] upgraded legacy plaintext password for user_id={user.get('id')}")
                 start_user_session(user, remember=remember_me)
                 return redirect(url_for('dashboard_page'))
     except Exception as e:
-        print(f"Login failed: {type(e).__name__}: {e}")
+        print(f"[Login Debug] failed for identifier={login_identifier!r}: {type(e).__name__}: {e}")
+        traceback.print_exc()
         flash('Unable to sign in right now. Please try again.', 'error')
     finally:
         conn.close()
@@ -4212,32 +4339,65 @@ def skill_users_page(skill_name):
 
 @app.route('/recommendations')
 def recommendations_page():
+    wants_json = (
+        request.args.get('format') == 'json'
+        or 'application/json' in (request.headers.get('Accept') or '').lower()
+    )
     user = get_current_user()
     if not user:
-        return jsonify({'error': 'Unauthorized'}), 401
+        if wants_json:
+            return jsonify({'error': 'Unauthorized'}), 401
+        flash('Please log in to view recommendations.', 'error')
+        return redirect(url_for('auth_page'))
 
     try:
         offset = max(0, int(request.args.get('offset', 0)))
-        limit = min(12, max(1, int(request.args.get('limit', 4))))
+        limit = min(24, max(1, int(request.args.get('limit', 12))))
     except (TypeError, ValueError):
-        return jsonify({'error': 'Invalid pagination'}), 400
+        if wants_json:
+            return jsonify({'error': 'Invalid pagination'}), 400
+        flash('Invalid recommendations page.', 'error')
+        return redirect(url_for('dashboard_page'))
 
     conn = get_db_connection()
     if not conn:
-        return jsonify({'error': 'Database connection failed'}), 500
+        if wants_json:
+            return jsonify({'error': 'Database connection failed'}), 500
+        flash('Database connection failed.', 'error')
+        return render_template(
+            'user/recommendations.html',
+            user=user,
+            recommended_users=[],
+            has_more=False,
+            next_offset=offset,
+            active_page='recommendations'
+        )
 
     try:
         with conn.cursor() as cursor:
             users, total = fetch_recommended_users(cursor, user, offset=offset, limit=limit)
         next_offset = offset + len(users)
-        return jsonify({
-            'users': users,
-            'next_offset': next_offset,
-            'has_more': next_offset < total
-        })
+        has_more = next_offset < total
+        if wants_json:
+            return jsonify({
+                'users': users,
+                'next_offset': next_offset,
+                'has_more': has_more
+            })
+        return render_template(
+            'user/recommendations.html',
+            user=user,
+            recommended_users=users,
+            has_more=has_more,
+            next_offset=next_offset,
+            active_page='recommendations'
+        )
     except Exception as e:
         print(f"Error loading recommendations: {e}")
-        return jsonify({'error': 'Unable to load recommendations'}), 500
+        if wants_json:
+            return jsonify({'error': 'Unable to load recommendations'}), 500
+        flash('Unable to load recommendations.', 'error')
+        return redirect(url_for('dashboard_page'))
     finally:
         conn.close()
 
@@ -6721,7 +6881,7 @@ def admin_forgot_password_page():
 
     if request.method == 'POST':
         action = request.form.get('action', 'request_code')
-        email = request.form.get('email', '').strip().lower()
+        email = normalize_email(request.form.get('email', ''))
 
         if not email:
             flash('Admin email is required.', 'error')
@@ -6791,7 +6951,7 @@ def admin_forgot_password_page():
                     """
                     SELECT id, username, email, reset_code, reset_code_expiry
                     FROM admin_accounts
-                    WHERE LOWER(email) = LOWER(%s)
+                    WHERE LOWER(TRIM(email)) = %s
                       AND reset_code = %s
                       AND reset_code_expiry IS NOT NULL
                     LIMIT 1

@@ -29,6 +29,7 @@
   <div class="admin-card skill-category-form-card">
     <span>Manage Skill Categories</span>
     <form class="admin-form" method="post" action="{{ url_for('admin_save_skill_category') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="text" name="category_name" placeholder="Category name" required>
       <input type="text" name="icon" placeholder="FontAwesome icon class" value="fa-solid fa-layer-group">
       <textarea name="keywords" placeholder="Keywords separated by commas"></textarea>
@@ -47,10 +48,12 @@
           <td>{{ category.saved_users or 0 }}</td>
           <td class="admin-actions">
             <form id="category-form-{{ category.id }}" method="post" action="{{ url_for('admin_save_skill_category') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="category_id" value="{{ category.id }}">
               <button class="action-btn soft" type="submit">Save</button>
             </form>
             <form method="post" action="{{ url_for('admin_delete_skill_category', category_id=category.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="action-btn danger" type="submit" data-confirm="Delete this category?">Delete</button>
             </form>
           </td>

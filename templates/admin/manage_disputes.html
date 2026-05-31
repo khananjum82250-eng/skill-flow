@@ -56,12 +56,15 @@
         <td>
           <div class="admin-actions dispute-actions">
             <form method="post" action="{{ url_for('admin_update_dispute_status', dispute_id=dispute.id, status='under_review') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="action-btn soft" type="submit">Mark as Under Review</button>
             </form>
             <form method="post" action="{{ url_for('admin_update_dispute_status', dispute_id=dispute.id, status='resolved') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="action-btn" type="submit">Resolve</button>
             </form>
             <form method="post" action="{{ url_for('admin_update_dispute_status', dispute_id=dispute.id, status='rejected') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="action-btn danger" type="submit">Reject</button>
             </form>
           </div>

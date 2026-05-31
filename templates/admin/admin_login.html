@@ -28,6 +28,7 @@
         {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
       {% endwith %}
       <form class="admin-form" method="post" action="{{ url_for('admin_login_page') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label>Username<input type="text" name="username" placeholder="Username" autocomplete="username" required></label>
         <label class="admin-password-field">
           <span>Password</span>

@@ -9,6 +9,7 @@
       <p>Track registrations, skill swap activity, payment events, chat unlocks, and system alerts.</p>
     </div>
     <form method="post" action="{{ url_for('admin_notifications_mark_all_read') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="admin-button" type="submit"><i class="fa-solid fa-check-double"></i> Mark All as Read</button>
     </form>
   </div>
@@ -22,6 +23,7 @@
   <section class="admin-card admin-section notification-send-card">
     <span><i class="fa-solid fa-paper-plane"></i> Send User Notification</span>
     <form class="admin-form" method="post" action="{{ url_for('admin_send_user_notification') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <select name="target">
         <option value="all">All users</option>
         <option value="one">Selected user</option>
@@ -65,10 +67,12 @@
         <div class="notification-actions">
           {% if not item.is_read %}
             <form method="post" action="{{ url_for('admin_notification_action', notification_id=item.id, action='read') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="action-btn soft" type="submit"><i class="fa-solid fa-check"></i> Mark as Read</button>
             </form>
           {% endif %}
           <form method="post" action="{{ url_for('admin_notification_action', notification_id=item.id, action='delete') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button class="action-btn danger" type="submit" data-confirm="Delete this notification?"><i class="fa-solid fa-trash"></i> Delete</button>
           </form>
         </div>

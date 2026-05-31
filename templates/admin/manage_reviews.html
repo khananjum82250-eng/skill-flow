@@ -61,9 +61,9 @@
         <td>{{ review.created_at }}</td>
         <td><span class="status-pill status-{{ review.status }}">{{ review.status|title }}</span></td>
         <td class="admin-actions">
-          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='visible') }}"><button class="action-btn soft" type="submit">Show</button></form>
-          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='remove') }}"><button class="action-btn danger" type="submit">Remove</button></form>
-          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='delete') }}"><button class="action-btn danger" data-confirm="Delete this review?" type="submit">Delete</button></form>
+          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='visible') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn soft" type="submit">Show</button></form>
+          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='remove') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn danger" type="submit">Remove</button></form>
+          <form method="post" action="{{ url_for('admin_review_action', review_id=review.id, action='delete') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="action-btn danger" data-confirm="Delete this review?" type="submit">Delete</button></form>
         </td>
       </tr>
       {% else %}

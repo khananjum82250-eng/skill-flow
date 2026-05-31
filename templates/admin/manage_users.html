@@ -119,18 +119,22 @@
           <div class="admin-actions">
             {% if user.is_blocked %}
             <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='unblock') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="admin-action-btn" type="submit"><i class="fa-solid fa-unlock"></i> Unblock</button>
             </form>
             {% else %}
             <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='block') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="admin-action-btn admin-action-warn" data-reason-required="block" type="submit"><i class="fa-solid fa-ban"></i> Block</button>
             </form>
             {% endif %}
             <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='delete') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="admin-action-btn admin-action-danger" data-reason-required="delete" type="submit"><i class="fa-solid fa-trash"></i> Delete</button>
             </form>
             {% if not user.is_verified %}
             <form method="post" action="{{ url_for('admin_user_action', user_id=user.id, action='verify-email') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="admin-action-btn" type="submit"><i class="fa-solid fa-envelope-circle-check"></i> Verify</button>
             </form>
             {% endif %}
